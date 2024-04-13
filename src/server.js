@@ -1,7 +1,9 @@
 import http from 'http';
 import webSocket from 'ws';
+//setup express
 import express from "express";
 
+//express app
 const app = express();
 
 //console.log("hello");
@@ -10,7 +12,8 @@ app.set("views", __dirname + "/views");
 app.use("/public", express.static(__dirname + "/public"));
 app.get("/", (req,res) => res.render("home"));
 app.get("/*", (req,res) => res.redirect("/"));
-const handleListen = () => console.log(`Listening on http://localhost:3000`)
+const handleListen = () => console.log(`Listening on http://localhost:3000`);
+//express port
 //app.listen(3000,handleListen);
 //#npm run dev 
 //shell 에서 실행하면 hello 콘솔 확인
