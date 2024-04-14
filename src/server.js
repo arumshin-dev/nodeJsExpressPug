@@ -34,6 +34,9 @@ const wss = new webSocket.Server({ server });
 // WebSocket 연결이 발생할 때 실행될 함수
 function handleConnection(socket){
   console.log(socket);
+  //back
+  console.log("Connected to Browser ✅");
+  socket.send("hello!!");
 }
 
 // WebSocket 서버에 연결 이벤트 리스너 등록
