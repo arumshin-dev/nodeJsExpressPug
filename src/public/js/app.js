@@ -1,1 +1,1 @@
-alert('hi');
+const socket = new WebSocket(`wss://${window.location.host}`);
