@@ -33,9 +33,14 @@ const wss = new webSocket.Server({ server });
 
 // WebSocket 연결이 발생할 때 실행될 함수
 function handleConnection(socket){
-  console.log(socket);
+  //console.log(socket);
   //back
   console.log("Connected to Browser ✅");
+  socket.on("close", () => console.log("Disconnected from the Browser ❌"));
+  socket.on("message", (message) => {
+    // console.log(message.toString('utf8'));
+    console.log(message.toString());
+  });
   socket.send("hello!!");
 }
 
