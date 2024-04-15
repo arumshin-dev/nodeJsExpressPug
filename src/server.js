@@ -41,14 +41,18 @@ function onSocketMessage(message) {
   socket.send(message);
 };
 
+const sockets = [];
+
 // WebSocket 연결이 발생할 때 실행될 함수
 function handleConnection(socket){
   //console.log(socket);
+  sockets.push(socket);
   //back
   console.log("Connected to Browser ✅");
   socket.on("close", onSocketClose);
   socket.on("message", (message)=>{
-   socket.send(message.toString());
+    sockets.forEach(aSocket => aSocket.send(message.toString()));//접속한 소켓들에게 보냄
+   // socket.send(message.toString());//자기자신에게보냄
   });
   // socket.send("hello!!");
 }
