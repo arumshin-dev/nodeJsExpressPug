@@ -38,6 +38,7 @@ function onSocketClose() {
 function onSocketMessage(message) {
   // console.log(message.toString('utf8'));
   console.log(message.toString());
+  socket.send(message);
 };
 
 // WebSocket 연결이 발생할 때 실행될 함수
@@ -46,8 +47,10 @@ function handleConnection(socket){
   //back
   console.log("Connected to Browser ✅");
   socket.on("close", onSocketClose);
-  socket.on("message", onSocketMessage);
-  socket.send("hello!!");
+  socket.on("message", (message)=>{
+   socket.send(message.toString());
+  });
+  // socket.send("hello!!");
 }
 
 // WebSocket 서버에 연결 이벤트 리스너 등록
