@@ -31,16 +31,22 @@ const server = http.createServer(app);
 // WebSocket 서버를 HTTP 서버와 함께 초기화
 const wss = new webSocket.Server({ server });
 
+function onSocketClose() {
+  console.log("Disconnected from the Browser ❌")
+};
+
+function onSocketMessage(message) {
+  // console.log(message.toString('utf8'));
+  console.log(message.toString());
+};
+
 // WebSocket 연결이 발생할 때 실행될 함수
 function handleConnection(socket){
   //console.log(socket);
   //back
   console.log("Connected to Browser ✅");
-  socket.on("close", () => console.log("Disconnected from the Browser ❌"));
-  socket.on("message", (message) => {
-    // console.log(message.toString('utf8'));
-    console.log(message.toString());
-  });
+  socket.on("close", onSocketClose);
+  socket.on("message", onSocketMessage);
   socket.send("hello!!");
 }
 
