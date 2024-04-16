@@ -11,6 +11,9 @@ socket.addEventListener("open", handleOpen);
 
 socket.addEventListener("message", (message) => {
   console.log("New message: ", message.data);
+  const li = document.createElement("li");
+  li.innerText = message.data;
+  messageList.append(li);
 });
 
 socket.addEventListener("close", () =>{
