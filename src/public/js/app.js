@@ -58,6 +58,8 @@ function handleNickSubmit(event) {
   const input = nickForm.querySelector('input');
   // 소켓을 통해 서버로 메시지를 보냅니다. makeMessage 함수를 사용하여 "nickname" 유형과 입력 필드의 값을 포함하는 메시지 객체를 생성합니다.
   socket.send(makeMessage("nickname",input.value));
+  // 입력 필드를 비웁니다. 메시지 전송 후 입력 필드를 초기화하여 다음 메시지를 입력받을 준비를 합니다.
+  input.value='';
 }
 //메세지form에서 submit 동작이 일어날 때 실행
 messageForm.addEventListener("submit", haandleSubmit);

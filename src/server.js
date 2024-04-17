@@ -47,17 +47,19 @@ const sockets = [];
 function handleConnection(socket){
   //console.log(socket);
   sockets.push(socket);
+  socket["nickname"] = "Anon";
   //back
   console.log("Connected to Browser ✅");
   socket.on("close", onSocketClose);
-  socket.on("message", (message)=>{
-    const parsed = JSON.parse(message);
-    if(parsed.type === "new_message"){
-      sockets.forEach(aSocket => aSocket.send(parsed.payload));//접속한 소켓들에게 보냄
+  socket.on("message", (msg)=>{
+    const message = JSON.parse(msg);
+    switch (message.type) {
+      case "new_message":
+        sockets.forEach(aSocket => aSocket.send(`${socket.nickname} : ${message.payload}`));//접속한 소켓들에게 보냄
+      case "nickname":
+        socket["nickname"] = message.payload;
     }
-   // socket.send(message.toString());//자기자신에게보냄
   });
-  // socket.send("hello!!");
 }
 
 // WebSocket 서버에 연결 이벤트 리스너 등록
