@@ -51,7 +51,10 @@ function handleConnection(socket){
   console.log("Connected to Browser ✅");
   socket.on("close", onSocketClose);
   socket.on("message", (message)=>{
-    sockets.forEach(aSocket => aSocket.send(message.toString()));//접속한 소켓들에게 보냄
+    const parsed = JSON.parse(message);
+    if(parsed.type === "new_message"){
+      sockets.forEach(aSocket => aSocket.send(parsed.payload));//접속한 소켓들에게 보냄
+    }
    // socket.send(message.toString());//자기자신에게보냄
   });
   // socket.send("hello!!");
