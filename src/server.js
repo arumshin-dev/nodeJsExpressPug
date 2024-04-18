@@ -64,7 +64,8 @@ function handleConnection(socket){
       case "new_message":
         // 모든 연결된 소켓(sockets 배열의 각 aSocket)에게 이 메시지를 전송합니다.
         // 메시지 포맷: "<닉네임>: <메시지 내용>"
-        sockets.forEach(aSocket => aSocket.send(`${socket.nickname} : ${message.payload}`));
+        sockets.filter((aSocket) => aSocket !== socket).forEach((aSocket) => aSocket.send(`${socket.nickname}: ${message.payload}`));
+        //sockets.forEach(aSocket => aSocket.send(`${socket.nickname} : ${message.payload}`));
         break; // switch 문에서 break를 빠트리면 다음 case로 계속 진행됩니다.
       // 닉네임 설정 메시지를 받았을 경우
       case "nickname":
