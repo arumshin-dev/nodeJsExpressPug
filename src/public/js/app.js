@@ -44,8 +44,11 @@ function haandleSubmit(event){
   const input = messageForm.querySelector("input");
   // 소켓을 통해 서버로 메시지를 보냅니다. makeMessage 함수를 사용하여 "new_message" 유형과 입력 필드의 값을 포함하는 메시지 객체를 생성합니다.
   socket.send(makeMessage("new_message",input.value));
+  //li 객체 js에서 생성
   const li = document.createElement("li");
+  //li에 내가 보내는 메세지 담기
   li.innerText = `You: ${input.value}`;
+  //ul에 추가하기
   messageList.append(li);
   // 콘솔에 입력 필드의 값을 출력합니다. 디버깅 목적으로 사용됩니다.
   console.log(input.value);

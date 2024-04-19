@@ -64,6 +64,8 @@ function handleConnection(socket){
       case "new_message":
         // 모든 연결된 소켓(sockets 배열의 각 aSocket)에게 이 메시지를 전송합니다.
         // 메시지 포맷: "<닉네임>: <메시지 내용>"
+        //filter 조건으로 동일한 소켓 객체인지 확인. 
+        //aSocket은 메세지를 보낼때 같이 온 소켓이며, socket은 커넥션에 성공했을때 생성된 객체
         sockets.filter((aSocket) => aSocket !== socket).forEach((aSocket) => aSocket.send(`${socket.nickname}: ${message.payload}`));
         //sockets.forEach(aSocket => aSocket.send(`${socket.nickname} : ${message.payload}`));
         break; // switch 문에서 break를 빠트리면 다음 case로 계속 진행됩니다.
