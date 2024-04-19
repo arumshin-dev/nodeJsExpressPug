@@ -32,8 +32,11 @@ const handleListen = () => console.log(`Listening on http://localhost:3000`);
 
 // HTTP 서버를 Express 앱과 함께 생성
 const httpServer = http.createServer(app);
-const wsDerver = SocketIO(httpServer);
+const wsServer = SocketIO(httpServer);
 
+wsServer.on("connection", socket => {
+  console.log(socket);
+});
 /*
 // WebSocket 서버를 HTTP 서버와 함께 초기화
 const wss = new webSocket.Server({ server });

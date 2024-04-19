@@ -1,4 +1,6 @@
 //front
+const socket = io();
+
 /*
 const socket = new WebSocket(`wss://${window.location.host}`);
 const messageList = document.querySelector("ul");
