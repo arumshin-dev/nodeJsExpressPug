@@ -1,7 +1,11 @@
 // HTTP와 WebSocket 모듈 가져오기
 import http from 'http';
-import webSocket from 'ws';
 
+//socket.io 모듈 가져오기 http://localhost:3000/socket.io/socket.io.js
+import SocketIO from 'socket.io';
+/*
+import webSocket from 'ws';
+*/
 // Express 모듈 가져오기
 import express from "express";
 
@@ -27,8 +31,10 @@ app.get("/*", (req, res) => res.redirect("/"));
 const handleListen = () => console.log(`Listening on http://localhost:3000`);
 
 // HTTP 서버를 Express 앱과 함께 생성
-const server = http.createServer(app);
+const httpServer = http.createServer(app);
+const wsDerver = SocketIO(httpServer);
 
+/*
 // WebSocket 서버를 HTTP 서버와 함께 초기화
 const wss = new webSocket.Server({ server });
 
@@ -80,6 +86,7 @@ function handleConnection(socket){
 
 // WebSocket 서버에 연결 이벤트 리스너 등록
 wss.on("connection", handleConnection);
+*/
 
 // 서버를 포트 3000에서 시작
-server.listen(3000, handleListen);
+httpServer.listen(3000, handleListen);
