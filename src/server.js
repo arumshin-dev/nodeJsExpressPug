@@ -32,9 +32,13 @@ const handleListen = () => console.log(`Listening on http://localhost:3000`);
 
 // HTTP 서버를 Express 앱과 함께 생성
 const httpServer = http.createServer(app);
+// Socket.IO 라이브러리를 사용하여 httpServer를 기반으로 새 WebSocket 서버(wsServer) 인스턴스를 생성합니다.
 const wsServer = SocketIO(httpServer);
 
+// wsServer에서 'connection' 이벤트를 리스닝합니다. 이 이벤트는 클라이언트가 서버에 연결될 때마다 발생합니다.
 wsServer.on("connection", socket => {
+  // 클라이언트와 연결된 소켓 객체를 콘솔에 출력합니다.
+  // 이 소켓 객체에는 연결된 클라이언트의 정보 및 상태, 이벤트 핸들링 메소드 등이 포함되어 있습니다.
   console.log(socket);
 });
 /*
