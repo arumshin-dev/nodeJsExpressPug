@@ -4,18 +4,28 @@
 // 이 함수는 현재 웹 페이지가 로드된 서버와 자동으로 연결을 시도합니다.
 const socket = io();
 
+// 'welcome' 아이디를 가진 HTML 요소를 선택하여 welcome 변수에 저장합니다.
 const welcome = document.getElementById("welcome");
+// welcome 요소 내부에서 form 요소를 찾아 form 변수에 저장합니다.
 const form = welcome.querySelector("form");
 
+// 폼 제출 이벤트를 처리하는 handleRoomSubmit 함수를 정의합니다.
 function handleRoomSubmit(event) {
+  // 폼 제출에 의한 페이지 새로고침을 방지합니다.
   event.preventDefault();
+  // form 요소 내의 input 요소를 찾아 input 변수에 저장합니다.
   const input = form.querySelector("input");
+  // 소켓을 통해 "enter_room" 이벤트를 서버로 전송하고, 서버로부터 응답을 받으면 콜백 함수를 실행합니다.
+  // input.value는 사용자가 입력한 방 이름 또는 데이터를 payload로 서버에 전송합니다.
   socket.emit("enter_room", {payload:input.value}, () => {
+    // 서버로부터 응답을 받았을 때 콘솔에 메시지를 출력합니다.
     console.log("Server is done!");
   });
+  // 메시지 전송 후 입력 필드를 비웁니다.
   input.value = "";
 }
 
+// form 요소에 'submit' 이벤트 리스너를 추가합니다. 제출 이벤트가 발생하면 handleRoomSubmit 함수가 호출됩니다.
 form.addEventListener("submit", handleRoomSubmit);
 /*
 const socket = new WebSocket(`wss://${window.location.host}`);

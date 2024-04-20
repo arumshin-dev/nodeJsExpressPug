@@ -35,15 +35,20 @@ const httpServer = http.createServer(app);
 // Socket.IO 라이브러리를 사용하여 httpServer를 기반으로 새 WebSocket 서버(wsServer) 인스턴스를 생성합니다.
 const wsServer = SocketIO(httpServer);
 
-// wsServer에서 'connection' 이벤트를 리스닝합니다. 이 이벤트는 클라이언트가 서버에 연결될 때마다 발생합니다.
+// WebSocket 서버의 'connection' 이벤트 리스너를 설정합니다. 
+// 이 이벤트는 클라이언트가 서버에 연결될 때마다 트리거됩니다.
 wsServer.on("connection", socket => {
-  // 클라이언트와 연결된 소켓 객체를 콘솔에 출력합니다.
-  // 이 소켓 객체에는 연결된 클라이언트의 정보 및 상태, 이벤트 핸들링 메소드 등이 포함되어 있습니다.
-  //console.log(socket);
+  // 클라이언트와 연결된 각 소켓 객체에 대해 'enter_room' 이벤트 리스너를 설정합니다.
+  // 이 이벤트는 클라이언트가 방에 들어가고자 할 때 클라이언트로부터 발생합니다.
   socket.on("enter_room", (msg, done) => {
+    // 클라이언트로부터 받은 메시지(msg)를 콘솔에 출력합니다.
+    // msg는 클라이언트가 방에 들어갈 때 보내는 데이터(예: 방 이름)를 포함할 수 있습니다.
     console.log(msg);
+
+    // setTimeout을 사용하여 5초 후에 done 콜백 함수를 호출합니다.
+    // 이는 예를 들어, 서버가 일부 작업을 완료한 후 클라이언트에게 특정 작업이 완료되었음을 알리는 데 사용할 수 있습니다.
     setTimeout(() => {
-      done();
+      done();  // 클라이언트에게 응답을 보냅니다. 이 함수는 클라이언트가 제공한 콜백 함수를 실행시키는 역할을 합니다.
     }, 5000);
   });
 });
