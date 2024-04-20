@@ -39,8 +39,13 @@ const wsServer = SocketIO(httpServer);
 wsServer.on("connection", socket => {
   // 클라이언트와 연결된 소켓 객체를 콘솔에 출력합니다.
   // 이 소켓 객체에는 연결된 클라이언트의 정보 및 상태, 이벤트 핸들링 메소드 등이 포함되어 있습니다.
-  console.log(socket);
-  socket.on("room", (msg) => console.log(msg));
+  //console.log(socket);
+  socket.on("enter_room", (msg, done) => {
+    console.log(msg);
+    setTimeout(() => {
+      done();
+    }, 5000);
+  });
 });
 /*
 // WebSocket 서버를 HTTP 서버와 함께 초기화
