@@ -8,18 +8,28 @@ const socket = io();
 const welcome = document.getElementById("welcome");
 // welcome 요소 내부에서 form 요소를 찾아 form 변수에 저장합니다.
 const form = welcome.querySelector("form");
+// 'room'이라는 아이디를 가진 HTML 요소를 선택하여 room 변수에 저장합니다.
 const room = document.getElementById("room");
 
+// room 요소를 화면에서 숨깁니다. 이는 사용자가 아직 방을 선택하지 않았을 때 방 목록이나 채팅방이 보이지 않게 하기 위함입니다.
 room.hidden = true;
 
-let roomName; 
+// roomName 변수를 선언합니다. 이 변수는 선택된 채팅방의 이름을 저장하는 데 사용될 것입니다.
+let roomName;
 
+// showRoom 함수를 정의합니다. 이 함수는 채팅방을 화면에 표시하는 데 사용됩니다.
 function showRoom(){
+  // welcome 요소를 화면에서 숨깁니다. 이는 사용자가 방을 선택하면 초기 환영 메시지나 방 선택 화면을 숨기기 위함입니다.
   welcome.hidden = true;
+  // room 요소를 화면에 표시합니다. 이는 사용자가 방을 선택하면 해당 방의 채팅 인터페이스를 보여주기 위함입니다.
   room.hidden = false;
+  // room 요소 내부에서 첫 번째 h3 태그를 선택합니다.
   const h3 = room.querySelector("h3");
+  // h3 요소의 텍스트를 "Room "과 선택된 방의 이름(roomName)을 결합한 문자열로 설정합니다.
+  // 이는 사용자가 어떤 방에 있는지를 명시적으로 보여주기 위함입니다.
   h3.innerText = `Room ${roomName}`;
 }
+
 
 // 폼 제출 이벤트를 처리하는 handleRoomSubmit 함수를 정의합니다.
 function handleRoomSubmit(event) {
@@ -30,7 +40,10 @@ function handleRoomSubmit(event) {
   // 소켓을 통해 "enter_room" 이벤트를 서버로 전송하고, 서버로부터 응답을 받으면 콜백 함수를 실행합니다.
   // input.value는 사용자가 입력한 방 이름 또는 데이터를 payload로 서버에 전송합니다.
   socket.emit("enter_room", {payload:input.value}, showRoom);
+  // input 요소의 현재 값(value)을 roomName 변수에 할당합니다.
+  // 이는 사용자가 입력한 텍스트를 채팅방 이름으로 사용하기 위해 저장하는 과정입니다.
   roomName = input.value;
+
   // 메시지 전송 후 입력 필드를 비웁니다.
   input.value = "";
 }

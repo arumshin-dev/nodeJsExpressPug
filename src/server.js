@@ -38,17 +38,25 @@ const wsServer = SocketIO(httpServer);
 // WebSocket 서버의 'connection' 이벤트 리스너를 설정합니다. 
 // 이 이벤트는 클라이언트가 서버에 연결될 때마다 트리거됩니다.
 wsServer.on("connection", socket => {
-  socket.onAny((evnet) => {
-    console.log(`Socket Event: ${evnet}`);
+  // 클라이언트와 연결된 소켓에서 발생하는 모든 이벤트를 감지하고,
+  // 해당 이벤트의 이름을 콘솔에 로그합니다.
+  socket.onAny((event) => {
+    console.log(`Socket Event: ${event}`);
   });
-  // 클라이언트와 연결된 각 소켓 객체에 대해 'enter_room' 이벤트 리스너를 설정합니다.
-  // 이 이벤트는 클라이언트가 방에 들어가고자 할 때 클라이언트로부터 발생합니다.
+
+  // 'enter_room' 이벤트 리스너를 설정합니다.
+  // 클라이언트가 채팅방에 들어가고자 할 때 이 이벤트가 발생합니다.
   socket.on("enter_room", (roomName, done) => {
+    // 클라이언트 소켓을 지정된 방 이름에 해당하는 방에 조인시킵니다.
+    // Socket.IO의 join 메소드를 사용하여 해당 방에 소켓을 추가합니다.
     socket.join(roomName);
-    // 클라이언트에게 응답을 보냅니다. 이 함수는 클라이언트가 제공한 콜백 함수를 실행시키는 역할을 합니다.
+
+    // 클라이언트에게 작업이 완료되었음을 알리기 위해 콜백 함수(done)를 호출합니다.
+    // 클라이언트가 제공한 이 콜백 함수는 서버의 작업이 완료된 후 클라이언트 측에서 특정 행동을 하도록 할 수 있습니다.
     done();
   });
 });
+
 /*
 // WebSocket 서버를 HTTP 서버와 함께 초기화
 const wss = new webSocket.Server({ server });
