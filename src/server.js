@@ -40,15 +40,15 @@ const wsServer = SocketIO(httpServer);
 wsServer.on("connection", socket => {
   // 클라이언트와 연결된 각 소켓 객체에 대해 'enter_room' 이벤트 리스너를 설정합니다.
   // 이 이벤트는 클라이언트가 방에 들어가고자 할 때 클라이언트로부터 발생합니다.
-  socket.on("enter_room", (msg, done) => {
+  socket.on("enter_room", (roomName, done) => {
     // 클라이언트로부터 받은 메시지(msg)를 콘솔에 출력합니다.
     // msg는 클라이언트가 방에 들어갈 때 보내는 데이터(예: 방 이름)를 포함할 수 있습니다.
-    console.log(msg);
+    console.log(roomName);
 
     // setTimeout을 사용하여 5초 후에 done 콜백 함수를 호출합니다.
     // 이는 예를 들어, 서버가 일부 작업을 완료한 후 클라이언트에게 특정 작업이 완료되었음을 알리는 데 사용할 수 있습니다.
     setTimeout(() => {
-      done();  // 클라이언트에게 응답을 보냅니다. 이 함수는 클라이언트가 제공한 콜백 함수를 실행시키는 역할을 합니다.
+      done("hello from the backend");  // 클라이언트에게 응답을 보냅니다. 이 함수는 클라이언트가 제공한 콜백 함수를 실행시키는 역할을 합니다.
     }, 5000);
   });
 });

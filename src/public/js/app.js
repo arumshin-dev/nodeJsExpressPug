@@ -9,6 +9,10 @@ const welcome = document.getElementById("welcome");
 // welcome 요소 내부에서 form 요소를 찾아 form 변수에 저장합니다.
 const form = welcome.querySelector("form");
 
+function backendDone(msg){
+  console.log(`The backend says : `, msg);
+}
+
 // 폼 제출 이벤트를 처리하는 handleRoomSubmit 함수를 정의합니다.
 function handleRoomSubmit(event) {
   // 폼 제출에 의한 페이지 새로고침을 방지합니다.
@@ -17,10 +21,7 @@ function handleRoomSubmit(event) {
   const input = form.querySelector("input");
   // 소켓을 통해 "enter_room" 이벤트를 서버로 전송하고, 서버로부터 응답을 받으면 콜백 함수를 실행합니다.
   // input.value는 사용자가 입력한 방 이름 또는 데이터를 payload로 서버에 전송합니다.
-  socket.emit("enter_room", {payload:input.value}, () => {
-    // 서버로부터 응답을 받았을 때 콘솔에 메시지를 출력합니다.
-    console.log("Server is done!");
-  });
+  socket.emit("enter_room", {payload:input.value}, backendDone);
   // 메시지 전송 후 입력 필드를 비웁니다.
   input.value = "";
 }
