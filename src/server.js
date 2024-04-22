@@ -49,11 +49,14 @@ wsServer.on("connection", socket => {
   socket.on("enter_room", (roomName, done) => {
     // 클라이언트 소켓을 지정된 방 이름에 해당하는 방에 조인시킵니다.
     // Socket.IO의 join 메소드를 사용하여 해당 방에 소켓을 추가합니다.
-    socket.join(roomName);
+    socket.join(roomName.payload);
+    console.log(roomName.payload);
 
     // 클라이언트에게 작업이 완료되었음을 알리기 위해 콜백 함수(done)를 호출합니다.
     // 클라이언트가 제공한 이 콜백 함수는 서버의 작업이 완료된 후 클라이언트 측에서 특정 행동을 하도록 할 수 있습니다.
     done();
+
+    socket.to(roomName.payload).emit("welcome");
   });
 });
 

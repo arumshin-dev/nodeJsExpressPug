@@ -50,6 +50,16 @@ function handleRoomSubmit(event) {
 
 // form 요소에 'submit' 이벤트 리스너를 추가합니다. 제출 이벤트가 발생하면 handleRoomSubmit 함수가 호출됩니다.
 form.addEventListener("submit", handleRoomSubmit);
+
+function addMessage(message){
+  const ul = room.querySelector("ul");
+  const li = document.createElement("li");
+  li.innerText = message;
+  ul.appendChild(li);
+}
+socket.on("welcome", ()=>{
+  addMessage("Someone joined!");
+});
 /*
 const socket = new WebSocket(`wss://${window.location.host}`);
 const messageList = document.querySelector("ul");
