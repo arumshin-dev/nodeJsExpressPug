@@ -51,15 +51,25 @@ function handleRoomSubmit(event) {
 // form 요소에 'submit' 이벤트 리스너를 추가합니다. 제출 이벤트가 발생하면 handleRoomSubmit 함수가 호출됩니다.
 form.addEventListener("submit", handleRoomSubmit);
 
+// addMessage 함수를 정의합니다. 이 함수는 메시지 문자열을 매개변수로 받아 처리합니다.
 function addMessage(message){
+  // 'room' 요소 내부에서 'ul' 태그를 찾아 ul 변수에 저장합니다.
   const ul = room.querySelector("ul");
+  // 새로운 'li' 요소를 생성합니다.
   const li = document.createElement("li");
+  // 생성된 'li' 요소의 텍스트 내용으로 매개변수로 받은 message를 설정합니다.
   li.innerText = message;
+  // ul 요소의 자식 요소로 생성된 li를 추가합니다. 이는 메시지 목록에 새 메시지를 표시합니다.
   ul.appendChild(li);
 }
-socket.on("welcome", ()=>{
+
+// socket 객체에 'welcome' 이벤트 리스너를 추가합니다.
+// 이 이벤트는 서버로부터 'welcome' 신호를 받았을 때 실행됩니다.
+socket.on("welcome", () => {
+  // 'welcome' 이벤트가 발생하면 "Someone joined!"라는 메시지를 addMessage 함수를 사용하여 화면에 표시합니다.
   addMessage("Someone joined!");
 });
+
 /*
 const socket = new WebSocket(`wss://${window.location.host}`);
 const messageList = document.querySelector("ul");
