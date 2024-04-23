@@ -17,6 +17,17 @@ room.hidden = true;
 // roomName 변수를 선언합니다. 이 변수는 선택된 채팅방의 이름을 저장하는 데 사용될 것입니다.
 let roomName;
 
+function handleMessageSubmit(event){
+  event.preventDefault();
+  const input = room.querySelector("input");
+  const value = input.value;
+  console.log(input.value);
+  socket.emit("new_message", input.value, roomName, () => {
+    addMessage(`You: ${value}`);
+  });
+  input.value = "";
+}
+
 // showRoom 함수를 정의합니다. 이 함수는 채팅방을 화면에 표시하는 데 사용됩니다.
 function showRoom(){
   // welcome 요소를 화면에서 숨깁니다. 이는 사용자가 방을 선택하면 초기 환영 메시지나 방 선택 화면을 숨기기 위함입니다.
@@ -28,6 +39,8 @@ function showRoom(){
   // h3 요소의 텍스트를 "Room "과 선택된 방의 이름(roomName)을 결합한 문자열로 설정합니다.
   // 이는 사용자가 어떤 방에 있는지를 명시적으로 보여주기 위함입니다.
   h3.innerText = `Room ${roomName}`;
+  const form = room.querySelector("form");
+  form.addEventListener("submit", handleMessageSubmit);
 }
 
 
@@ -73,6 +86,9 @@ socket.on("welcome", () => {
 socket.on("bye", () => {
   addMessage("Someone left! ㅠㅠ");
 });
+
+
+socket.on("new_message", addMessage);
 /*
 const socket = new WebSocket(`wss://${window.location.host}`);
 const messageList = document.querySelector("ul");
