@@ -70,6 +70,9 @@ socket.on("welcome", () => {
   addMessage("Someone joined!");
 });
 
+socket.on("bye", () => {
+  addMessage("Someone left! ㅠㅠ");
+});
 /*
 const socket = new WebSocket(`wss://${window.location.host}`);
 const messageList = document.querySelector("ul");
