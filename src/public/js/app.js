@@ -17,14 +17,29 @@ room.hidden = true;
 // roomName 변수를 선언합니다. 이 변수는 선택된 채팅방의 이름을 저장하는 데 사용될 것입니다.
 let roomName;
 
+// handleMessageSubmit 함수 정의: 폼 제출 이벤트를 처리합니다.
 function handleMessageSubmit(event){
+  // 폼 제출에 의한 페이지 새로고침을 방지합니다.
   event.preventDefault();
+
+  // 'room' 요소 내에서 첫 번째 'input' 요소를 찾아 input 변수에 저장합니다.
   const input = room.querySelector("input");
+
+  // input 요소의 현재 값을 value 변수에 저장합니다.
   const value = input.value;
+
+  // 입력값을 콘솔에 출력합니다. (디버깅 목적)
   console.log(input.value);
+
+  // socket을 통해 서버에 "new_message" 이벤트를 전송합니다.
+  // 이때, 사용자가 입력한 메시지(value), 방 이름(roomName)을 함께 전송합니다.
   socket.emit("new_message", input.value, roomName, () => {
+    // 서버에서 메시지를 받아 처리한 후 호출되는 콜백 함수입니다.
+    // 채팅창에 사용자 자신의 메시지를 "You: <메시지>" 형태로 추가합니다.
     addMessage(`You: ${value}`);
   });
+
+  // 메시지 전송 후 입력 필드를 비웁니다.
   input.value = "";
 }
 
@@ -39,7 +54,10 @@ function showRoom(){
   // h3 요소의 텍스트를 "Room "과 선택된 방의 이름(roomName)을 결합한 문자열로 설정합니다.
   // 이는 사용자가 어떤 방에 있는지를 명시적으로 보여주기 위함입니다.
   h3.innerText = `Room ${roomName}`;
+  // 'room' 요소 내에서 'form' 태그를 찾아 form 변수에 저장합니다.
   const form = room.querySelector("form");
+  // form 요소에 'submit' 이벤트 리스너를 추가합니다.
+  // 이 이벤트는 사용자가 폼을 제출할 때마다 실행됩니다.
   form.addEventListener("submit", handleMessageSubmit);
 }
 
@@ -83,11 +101,16 @@ socket.on("welcome", () => {
   addMessage("Someone joined!");
 });
 
+// 'bye' 이벤트를 수신하면 실행될 함수를 등록합니다.
+// 이 이벤트는 채팅방에서 누군가가 나갈 때 발생합니다.
 socket.on("bye", () => {
+  // "Someone left! ㅠㅠ" 메시지를 채팅 화면에 추가하는 addMessage 함수를 호출합니다.
+  // 이 메시지는 채팅방을 나간 사실을 다른 사용자들에게 알립니다.
   addMessage("Someone left! ㅠㅠ");
 });
 
-
+// 'new_message' 이벤트를 수신하면 실행될 함수를 등록합니다.
+// 이 이벤트는 채팅방에서 새로운 메시지가 도착했을 때 발생합니다.
 socket.on("new_message", addMessage);
 /*
 const socket = new WebSocket(`wss://${window.location.host}`);

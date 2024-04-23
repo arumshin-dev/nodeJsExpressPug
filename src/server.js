@@ -59,11 +59,23 @@ wsServer.on("connection", socket => {
     // 서버에서 특정 채팅방(roomName.payload)의 모든 클라이언트에게 'welcome' 이벤트를 방송합니다.
     // 이 방송은 메시지를 보낸 클라이언트를 제외한 모든 클라이언트에게 전송됩니다.
     socket.to(roomName.payload).emit("welcome");
+    // 클라이언트가 연결을 끊기 직전에 발생하는 'disconnecting' 이벤트를 리스닝합니다.
     socket.on("disconnecting", () => {
-      socket.rooms.forEach((room) => socket.to(room).emit("bye"));
+      // 클라이언트가 현재 속해 있는 모든 방을 순회합니다.
+      socket.rooms.forEach((room) => {
+        // 해당 방에 있는 다른 클라이언트들에게 'bye' 이벤트를 방송합니다.
+        // 이는 현재 클라이언트가 방을 떠나고 있음을 알리는 신호입니다.
+        socket.to(room).emit("bye");
+      });
     });
+
+    // 'new_message' 이벤트를 리스닝합니다.
+    // 이 이벤트는 사용자가 새 메시지를 보냈을 때 서버에 전달됩니다.
     socket.on("new_message", (msg, room, done) => {
+      // 전달받은 메시지(msg)를 같은 방(room)에 있는 다른 클라이언트들에게 전송합니다.
       socket.to(room).emit("new_message", msg);
+      // 클라이언트가 제공한 콜백 함수(done)를 호출하여,
+      // 메시지 전송이 성공적으로 처리되었음을 클라이언트에 알립니다.
       done();
     });
   });
