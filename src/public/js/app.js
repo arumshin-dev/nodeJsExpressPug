@@ -22,7 +22,7 @@ function handleMessageSubmit(event){
   // 폼 제출에 의한 페이지 새로고침을 방지합니다.
   event.preventDefault();
 
-  // 'room' 요소 내에서 첫 번째 'input' 요소를 찾아 input 변수에 저장합니다.
+  // 'room' 요소 내에서 첫 번째 '#msg input' 요소를 찾아 input 변수에 저장합니다.
   const input = room.querySelector("#msg input");
 
   // input 요소의 현재 값을 value 변수에 저장합니다.
@@ -43,9 +43,14 @@ function handleMessageSubmit(event){
   input.value = "";
 }
 
+// handleNicknameSubmit 함수 정의: 폼 제출 이벤트를 처리합니다.
 function handleNicknameSubmit(event) {
+  // 폼 제출에 의한 페이지 새로고침을 방지합니다.
   event.preventDefault();
+  // 'room' 요소 내에서 첫 번째 '#name input' 요소를 찾아 input 변수에 저장합니다.
   const input = room.querySelector("#name input");
+  // socket을 통해 서버에 "nickname" 이벤트를 전송합니다.
+  // 이때, 사용자가 입력한 닉네임(value)을 함께 전송합니다.
   socket.emit("nickname", input.value);
 }
 
@@ -60,12 +65,15 @@ function showRoom(){
   // h3 요소의 텍스트를 "Room "과 선택된 방의 이름(roomName)을 결합한 문자열로 설정합니다.
   // 이는 사용자가 어떤 방에 있는지를 명시적으로 보여주기 위함입니다.
   h3.innerText = `Room ${roomName}`;
-  // 'room' 요소 내에서 'form' 태그를 찾아 form 변수에 저장합니다.
+  // 'room' 요소 내에서 '#msg' 태그를 찾아 msgForm 변수에 저장합니다.
   const msgForm = room.querySelector("#msg");
+  // 'room' 요소 내에서 '#name' 태그를 찾아 nameForm 변수에 저장합니다.
   const nameForm = room.querySelector("#name");
-  // form 요소에 'submit' 이벤트 리스너를 추가합니다.
+  // msgForm 요소에 'submit' 이벤트 리스너를 추가합니다.
   // 이 이벤트는 사용자가 폼을 제출할 때마다 실행됩니다.
   msgForm.addEventListener("submit", handleMessageSubmit);
+  // nameForm 요소에 'submit' 이벤트 리스너를 추가합니다.
+  // 이 이벤트는 사용자가 폼을 제출할 때마다 실행됩니다.
   nameForm.addEventListener("submit", handleNicknameSubmit);
 }
 
@@ -105,14 +113,14 @@ function addMessage(message){
 // socket 객체에 'welcome' 이벤트 리스너를 추가합니다.
 // 이 이벤트는 서버로부터 'welcome' 신호를 받았을 때 실행됩니다.
 socket.on("welcome", (user) => {
-  // 'welcome' 이벤트가 발생하면 "Someone joined!"라는 메시지를 addMessage 함수를 사용하여 화면에 표시합니다.
+  // 'welcome' 이벤트가 발생하면 "사용자명 joined!"라는 메시지를 addMessage 함수를 사용하여 화면에 표시합니다.
   addMessage(`${user} arrived!`);
 });
 
 // 'bye' 이벤트를 수신하면 실행될 함수를 등록합니다.
 // 이 이벤트는 채팅방에서 누군가가 나갈 때 발생합니다.
 socket.on("bye", (left) => {
-  // "Someone left! ㅠㅠ" 메시지를 채팅 화면에 추가하는 addMessage 함수를 호출합니다.
+  // "사용자명 left! ㅠㅠ" 메시지를 채팅 화면에 추가하는 addMessage 함수를 호출합니다.
   // 이 메시지는 채팅방을 나간 사실을 다른 사용자들에게 알립니다.
   addMessage(`${left} left! ㅠㅠ`);
 });

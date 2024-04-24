@@ -38,6 +38,7 @@ const wsServer = SocketIO(httpServer);
 // WebSocket 서버의 'connection' 이벤트 리스너를 설정합니다. 
 // 이 이벤트는 클라이언트가 서버에 연결될 때마다 트리거됩니다.
 wsServer.on("connection", socket => {
+  // 새로 연결된 소켓에 기본적으로 "Anon"이라는 닉네임을 할당합니다.
   socket["nickname"] = "Anon";
   // 클라이언트와 연결된 소켓에서 발생하는 모든 이벤트를 감지하고,
   // 해당 이벤트의 이름을 콘솔에 로그합니다.
@@ -79,6 +80,8 @@ wsServer.on("connection", socket => {
       // 메시지 전송이 성공적으로 처리되었음을 클라이언트에 알립니다.
       done();
     });
+    // 'nickname' 이벤트를 리스닝합니다.
+    // 소켓에서 전달된 닉네임(nickname)을 해당 소켓의 "nickname" 속성에 저장합니다.
     socket.on("nickname", (nickname) => (socket["nickname"] = nickname));
   });
 });
