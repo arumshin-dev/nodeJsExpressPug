@@ -23,7 +23,7 @@ function handleMessageSubmit(event){
   event.preventDefault();
 
   // 'room' 요소 내에서 첫 번째 'input' 요소를 찾아 input 변수에 저장합니다.
-  const input = room.querySelector("#msg input"));
+  const input = room.querySelector("#msg input");
 
   // input 요소의 현재 값을 value 변수에 저장합니다.
   const value = input.value;
@@ -104,17 +104,17 @@ function addMessage(message){
 
 // socket 객체에 'welcome' 이벤트 리스너를 추가합니다.
 // 이 이벤트는 서버로부터 'welcome' 신호를 받았을 때 실행됩니다.
-socket.on("welcome", () => {
+socket.on("welcome", (user) => {
   // 'welcome' 이벤트가 발생하면 "Someone joined!"라는 메시지를 addMessage 함수를 사용하여 화면에 표시합니다.
-  addMessage("Someone joined!");
+  addMessage(`${user} arrived!`);
 });
 
 // 'bye' 이벤트를 수신하면 실행될 함수를 등록합니다.
 // 이 이벤트는 채팅방에서 누군가가 나갈 때 발생합니다.
-socket.on("bye", () => {
+socket.on("bye", (left) => {
   // "Someone left! ㅠㅠ" 메시지를 채팅 화면에 추가하는 addMessage 함수를 호출합니다.
   // 이 메시지는 채팅방을 나간 사실을 다른 사용자들에게 알립니다.
-  addMessage("Someone left! ㅠㅠ");
+  addMessage(`${left} left! ㅠㅠ`);
 });
 
 // 'new_message' 이벤트를 수신하면 실행될 함수를 등록합니다.
