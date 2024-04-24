@@ -23,7 +23,7 @@ function handleMessageSubmit(event){
   event.preventDefault();
 
   // 'room' 요소 내에서 첫 번째 'input' 요소를 찾아 input 변수에 저장합니다.
-  const input = room.querySelector("input");
+  const input = room.querySelector("#msg input"));
 
   // input 요소의 현재 값을 value 변수에 저장합니다.
   const value = input.value;
@@ -43,6 +43,12 @@ function handleMessageSubmit(event){
   input.value = "";
 }
 
+function handleNicknameSubmit(event) {
+  event.preventDefault();
+  const input = room.querySelector("#name input");
+  socket.emit("nickname", input.value);
+}
+
 // showRoom 함수를 정의합니다. 이 함수는 채팅방을 화면에 표시하는 데 사용됩니다.
 function showRoom(){
   // welcome 요소를 화면에서 숨깁니다. 이는 사용자가 방을 선택하면 초기 환영 메시지나 방 선택 화면을 숨기기 위함입니다.
@@ -55,10 +61,12 @@ function showRoom(){
   // 이는 사용자가 어떤 방에 있는지를 명시적으로 보여주기 위함입니다.
   h3.innerText = `Room ${roomName}`;
   // 'room' 요소 내에서 'form' 태그를 찾아 form 변수에 저장합니다.
-  const form = room.querySelector("form");
+  const msgForm = room.querySelector("#msg");
+  const nameForm = room.querySelector("#name");
   // form 요소에 'submit' 이벤트 리스너를 추가합니다.
   // 이 이벤트는 사용자가 폼을 제출할 때마다 실행됩니다.
-  form.addEventListener("submit", handleMessageSubmit);
+  msgForm.addEventListener("submit", handleMessageSubmit);
+  nameForm.addEventListener("submit", handleNicknameSubmit);
 }
 
 
