@@ -83,16 +83,18 @@ function handleRoomSubmit(event) {
   // 폼 제출에 의한 페이지 새로고침을 방지합니다.
   event.preventDefault();
   // form 요소 내의 input 요소를 찾아 input 변수에 저장합니다.
-  const input = form.querySelector("input");
+  const roomNameInput = form.querySelector("#roomName");
+  const nickNameInput = form.querySelector("#nickname");
   // 소켓을 통해 "enter_room" 이벤트를 서버로 전송하고, 서버로부터 응답을 받으면 콜백 함수를 실행합니다.
   // input.value는 사용자가 입력한 방 이름 또는 데이터를 payload로 서버에 전송합니다.
-  socket.emit("enter_room", {payload:input.value}, showRoom);
+  socket.emit("enter_room", { payload: roomNameInput.value, nickname: nickNameInput.value }, showRoom);
   // input 요소의 현재 값(value)을 roomName 변수에 할당합니다.
   // 이는 사용자가 입력한 텍스트를 채팅방 이름으로 사용하기 위해 저장하는 과정입니다.
-  roomName = input.value;
-
+  roomName = roomNameInput.value;
+  const changeNameInput = room.querySelector("#name input");
+  changeNameInput.value = nickNameInput.value;
   // 메시지 전송 후 입력 필드를 비웁니다.
-  input.value = "";
+  nickNameInput.value = "";
 }
 
 // form 요소에 'submit' 이벤트 리스너를 추가합니다. 제출 이벤트가 발생하면 handleRoomSubmit 함수가 호출됩니다.
