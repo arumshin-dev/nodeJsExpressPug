@@ -35,16 +35,28 @@ const httpServer = http.createServer(app);
 // Socket.IO 라이브러리를 사용하여 httpServer를 기반으로 새 WebSocket 서버(wsServer) 인스턴스를 생성합니다.
 const wsServer = SocketIO(httpServer);
 
+// publicRooms 함수 정의: 현재 서버에 존재하는 공개 채팅방 목록을 반환합니다.
 function publicRooms() {
+  // wsServer 객체에서 sockets의 adapter 객체를 구조 분해하여,
+  // sids와 rooms 맵을 추출합니다.
   const {sockets: {adapter: { sids, rooms }}} = wsServer;
-//  const sids = wsServer.adapter.sids;
-//  const rooms = wsServer.adapter.rooms;
+
+  // 공개 채팅방들을 저장할 배열을 초기화합니다.
   const publicRooms = [];
+
+  // 모든 방에 대해 반복을 수행합니다.
+  // rooms 맵에서 각 방의 키(key)와 값을 무시하고 순회합니다.
   rooms.forEach((_, key) => {
+    // sids 맵에 방 이름(key)이 없는 경우, 이는 공개 채팅방임을 의미합니다.
+    // Socket.IO에서 각 소켓의 ID는 sids 맵에 저장되며, 각 방은 rooms 맵에 저장됩니다.
+    // 소켓 ID 대신 방 이름이 키로 사용되는 경우, 해당 방에는 아무도 참여하지 않았다는 의미가 됩니다.
     if(sids.get(key) === undefined) {
+      // 공개 채팅방 배열에 현재 검사중인 방 이름을 추가합니다.
       publicRooms.push(key);
     }
-  })
+  });
+
+  // 공개 채팅방 목록을 반환합니다.
   return publicRooms;
 }
 
