@@ -37,6 +37,8 @@ const wsServer = SocketIO(httpServer);
 
 function publicRooms() {
   const {sockets: {adapter: { sids, rooms }}} = wsServer;
+//  const sids = wsServer.adapter.sids;
+//  const rooms = wsServer.adapter.rooms;
   const publicRooms = [];
   rooms.forEach((_, key) => {
     if(sids.get(key) === undefined) {
