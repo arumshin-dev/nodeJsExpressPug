@@ -35,6 +35,17 @@ const httpServer = http.createServer(app);
 // Socket.IO 라이브러리를 사용하여 httpServer를 기반으로 새 WebSocket 서버(wsServer) 인스턴스를 생성합니다.
 const wsServer = SocketIO(httpServer);
 
+function publicRooms() {
+  const {sockets: {adapter: { sids, rooms }}} = wsServer;
+  const publicRooms = [];
+  rooms.forEach((_, key) => {
+    if(sids.get(key) === undefined) {
+      publicRooms.push(key);
+    }
+  })
+  return publicRooms;
+}
+
 // WebSocket 서버의 'connection' 이벤트 리스너를 설정합니다. 
 // 이 이벤트는 클라이언트가 서버에 연결될 때마다 트리거됩니다.
 wsServer.on("connection", socket => {
