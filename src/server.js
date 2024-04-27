@@ -91,7 +91,8 @@ wsServer.on("connection", (socket) => {
     // 서버에서 특정 채팅방(roomName.payload)의 모든 클라이언트에게 'welcome' 이벤트를 방송합니다.
     // 이 방송은 메시지를 보낸 클라이언트를 제외한 모든 클라이언트에게 전송됩니다.
     socket.to(roomName.payload).emit("welcome", socket.nickname);
-
+    // "room_change" 이벤트를 서버에 연결된 모든 소켓(클라이언트)에게 전송합니다.
+    // 이 이벤트는 publicRooms() 함수를 호출하여 얻은 공개 채팅방 목록 배열을 보냅니다.
     wsServer.sockets.emit("room_change", publicRooms());
   });
 
@@ -105,9 +106,13 @@ wsServer.on("connection", (socket) => {
     });
   });
 
+  // 'disconnect' 이벤트를 리스닝합니다. 클라이언트가 연결을 해제할 때 이 이벤트가 발생합니다.
   socket.on("disconnect", () => {
+    // 클라이언트가 서버에서 연결을 해제하면, 서버에 연결된 모든 소켓(클라이언트)에게 'room_change' 이벤트를 전송합니다.
+    // 이 이벤트에는 현재 공개적으로 접근 가능한 채팅방의 목록을 포함합니다. 이 목록은 publicRooms() 함수를 호출함으로써 얻어집니다.
     wsServer.sockets.emit("room_change", publicRooms());
   });
+
   // 'new_message' 이벤트를 리스닝합니다.
   // 이 이벤트는 사용자가 새 메시지를 보냈을 때 서버에 전달됩니다.
   socket.on("new_message", (msg, room, done) => {

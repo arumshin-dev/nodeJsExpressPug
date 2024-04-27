@@ -135,15 +135,26 @@ socket.on("bye", (left) => {
 // 이 이벤트는 채팅방에서 새로운 메시지가 도착했을 때 발생합니다.
 socket.on("new_message", addMessage);
 
+// 'room_change' 이벤트를 리스닝합니다. 이 이벤트는 채팅방 목록이 변경되었을 때 서버로부터 받습니다.
 socket.on("room_change", (rooms) => {
+  // 'welcome' 요소 내에서 'ul' 요소를 찾아 roomList 변수에 저장합니다.
   const roomList = welcome.querySelector("ul");
+
+  // roomList의 내용을 초기화합니다. 새로운 방 목록을 표시하기 전에 기존 목록을 제거하기 위함입니다.
   roomList.innerHTML = "";
-  if(rooms.length ===0){
+
+  // 받은 방 목록이 비어있다면 함수를 종료합니다. 즉, 표시할 방이 없으면 아무 작업도 하지 않습니다.
+  if(rooms.length === 0) {
     return;
   }
-  rooms.forEach((room) =>{
+
+  // rooms 배열을 순회하면서 각 방 이름에 대해 li 요소를 생성하고, 이를 roomList에 추가합니다.
+  rooms.forEach((room) => {
+    // 새로운 'li' 요소를 생성합니다.
     const li = document.createElement("li");
+    // li 요소의 텍스트로 방 이름을 설정합니다.
     li.innerText = room;
-    roomList.append(li);
+    // 생성된 li 요소를 roomList의 자식 요소로 추가합니다. 이로써 사용자 인터페이스에 방 목록이 표시됩니다.
+    roomList.appendChild(li);
   });
 });
