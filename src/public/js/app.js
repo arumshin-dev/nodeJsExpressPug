@@ -134,3 +134,16 @@ socket.on("bye", (left) => {
 // 'new_message' 이벤트를 수신하면 실행될 함수를 등록합니다.
 // 이 이벤트는 채팅방에서 새로운 메시지가 도착했을 때 발생합니다.
 socket.on("new_message", addMessage);
+
+socket.on("room_change", (rooms) => {
+  const roomList = welcome.querySelector("ul");
+  roomList.innerHTML = "";
+  if(rooms.length ===0){
+    return;
+  }
+  rooms.forEach((room) =>{
+    const li = document.createElement("li");
+    li.innerText = room;
+    roomList.append(li);
+  });
+});

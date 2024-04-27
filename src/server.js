@@ -1,8 +1,8 @@
 // HTTP와 WebSocket 모듈 가져오기
-import http from 'http';
+import http from "http";
 
 //socket.io 모듈 가져오기 http://localhost:3000/socket.io/socket.io.js
-import SocketIO from 'socket.io';
+import SocketIO from "socket.io";
 /*
 import webSocket from 'ws';
 */
@@ -39,7 +39,11 @@ const wsServer = SocketIO(httpServer);
 function publicRooms() {
   // wsServer 객체에서 sockets의 adapter 객체를 구조 분해하여,
   // sids와 rooms 맵을 추출합니다.
-  const {sockets: {adapter: { sids, rooms }}} = wsServer;
+  const {
+    sockets: {
+      adapter: { sids, rooms },
+    },
+  } = wsServer;
 
   // 공개 채팅방들을 저장할 배열을 초기화합니다.
   const publicRooms = [];
@@ -50,7 +54,7 @@ function publicRooms() {
     // sids 맵에 방 이름(key)이 없는 경우, 이는 공개 채팅방임을 의미합니다.
     // Socket.IO에서 각 소켓의 ID는 sids 맵에 저장되며, 각 방은 rooms 맵에 저장됩니다.
     // 소켓 ID 대신 방 이름이 키로 사용되는 경우, 해당 방에는 아무도 참여하지 않았다는 의미가 됩니다.
-    if(sids.get(key) === undefined) {
+    if (sids.get(key) === undefined) {
       // 공개 채팅방 배열에 현재 검사중인 방 이름을 추가합니다.
       publicRooms.push(key);
     }
@@ -60,9 +64,9 @@ function publicRooms() {
   return publicRooms;
 }
 
-// WebSocket 서버의 'connection' 이벤트 리스너를 설정합니다. 
+// WebSocket 서버의 'connection' 이벤트 리스너를 설정합니다.
 // 이 이벤트는 클라이언트가 서버에 연결될 때마다 트리거됩니다.
-wsServer.on("connection", socket => {
+wsServer.on("connection", (socket) => {
   // 새로 연결된 소켓에 기본적으로 "Anon"이라는 닉네임을 할당합니다.
   socket["nickname"] = "Anon";
   // 클라이언트와 연결된 소켓에서 발생하는 모든 이벤트를 감지하고,
@@ -87,29 +91,36 @@ wsServer.on("connection", socket => {
     // 서버에서 특정 채팅방(roomName.payload)의 모든 클라이언트에게 'welcome' 이벤트를 방송합니다.
     // 이 방송은 메시지를 보낸 클라이언트를 제외한 모든 클라이언트에게 전송됩니다.
     socket.to(roomName.payload).emit("welcome", socket.nickname);
-    // 클라이언트가 연결을 끊기 직전에 발생하는 'disconnecting' 이벤트를 리스닝합니다.
-    socket.on("disconnecting", () => {
-      // 클라이언트가 현재 속해 있는 모든 방을 순회합니다.
-      socket.rooms.forEach((room) => {
-        // 해당 방에 있는 다른 클라이언트들에게 'bye' 이벤트를 방송합니다.
-        // 이는 현재 클라이언트가 방을 떠나고 있음을 알리는 신호입니다.
-        socket.to(room).emit("bye", socket.nickname);
-      });
-    });
 
-    // 'new_message' 이벤트를 리스닝합니다.
-    // 이 이벤트는 사용자가 새 메시지를 보냈을 때 서버에 전달됩니다.
-    socket.on("new_message", (msg, room, done) => {
-      // 전달받은 메시지(msg)를 같은 방(room)에 있는 다른 클라이언트들에게 전송합니다.
-      socket.to(room).emit("new_message", `${socket.nickname}: ${msg}`);
-      // 클라이언트가 제공한 콜백 함수(done)를 호출하여,
-      // 메시지 전송이 성공적으로 처리되었음을 클라이언트에 알립니다.
-      done();
-    });
-    // 'nickname' 이벤트를 리스닝합니다.
-    // 소켓에서 전달된 닉네임(nickname)을 해당 소켓의 "nickname" 속성에 저장합니다.
-    socket.on("nickname", (nickname) => (socket["nickname"] = nickname));
+    wsServer.sockets.emit("room_change", publicRooms());
   });
+
+  // 클라이언트가 연결을 끊기 직전에 발생하는 'disconnecting' 이벤트를 리스닝합니다.
+  socket.on("disconnecting", () => {
+    // 클라이언트가 현재 속해 있는 모든 방을 순회합니다.
+    socket.rooms.forEach((room) => {
+      // 해당 방에 있는 다른 클라이언트들에게 'bye' 이벤트를 방송합니다.
+      // 이는 현재 클라이언트가 방을 떠나고 있음을 알리는 신호입니다.
+      socket.to(room).emit("bye", socket.nickname);
+    });
+  });
+
+  socket.on("disconnect", () => {
+    wsServer.sockets.emit("room_change", publicRooms());
+  });
+  // 'new_message' 이벤트를 리스닝합니다.
+  // 이 이벤트는 사용자가 새 메시지를 보냈을 때 서버에 전달됩니다.
+  socket.on("new_message", (msg, room, done) => {
+    // 전달받은 메시지(msg)를 같은 방(room)에 있는 다른 클라이언트들에게 전송합니다.
+    socket.to(room).emit("new_message", `${socket.nickname}: ${msg}`);
+    // 클라이언트가 제공한 콜백 함수(done)를 호출하여,
+    // 메시지 전송이 성공적으로 처리되었음을 클라이언트에 알립니다.
+    done();
+  });
+
+  // 'nickname' 이벤트를 리스닝합니다.
+  // 소켓에서 전달된 닉네임(nickname)을 해당 소켓의 "nickname" 속성에 저장합니다.
+  socket.on("nickname", (nickname) => (socket["nickname"] = nickname));
 });
 
 // 서버를 포트 3000에서 시작
