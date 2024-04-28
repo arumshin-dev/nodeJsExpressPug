@@ -18,7 +18,7 @@ room.hidden = true;
 let roomName;
 
 // handleMessageSubmit 함수 정의: 폼 제출 이벤트를 처리합니다.
-function handleMessageSubmit(event){
+function handleMessageSubmit(event) {
   // 폼 제출에 의한 페이지 새로고침을 방지합니다.
   event.preventDefault();
 
@@ -55,7 +55,7 @@ function handleNicknameSubmit(event) {
 }
 
 // showRoom 함수를 정의합니다. 이 함수는 채팅방을 화면에 표시하는 데 사용됩니다.
-function showRoom(newCount){
+function showRoom(newCount) {
   // welcome 요소를 화면에서 숨깁니다. 이는 사용자가 방을 선택하면 초기 환영 메시지나 방 선택 화면을 숨기기 위함입니다.
   welcome.hidden = true;
   // room 요소를 화면에 표시합니다. 이는 사용자가 방을 선택하면 해당 방의 채팅 인터페이스를 보여주기 위함입니다.
@@ -77,7 +77,6 @@ function showRoom(newCount){
   nameForm.addEventListener("submit", handleNicknameSubmit);
 }
 
-
 // 폼 제출 이벤트를 처리하는 handleRoomSubmit 함수를 정의합니다.
 function handleRoomSubmit(event) {
   // 폼 제출에 의한 페이지 새로고침을 방지합니다.
@@ -89,7 +88,11 @@ function handleRoomSubmit(event) {
   // 소켓을 통해 "enter_room" 이벤트를 서버로 전송하고, 서버로부터 응답을 받으면 콜백 함수를 실행합니다.
   // roomNameInput.value는 사용자가 입력한 방 이름 또는 데이터를 payload로 서버에 전송합니다.
   // nickNameInput.value는 사용자가 입력한 닉네임 또는 데이터를 nickname 서버에 전송합니다.
-  socket.emit("enter_room", { payload: roomNameInput.value, nickname: nickNameInput.value }, showRoom);
+  socket.emit(
+    "enter_room",
+    { payload: roomNameInput.value, nickname: nickNameInput.value },
+    showRoom,
+  );
   // roomNameInput 요소의 현재 값(value)을 roomName 변수에 할당합니다.
   // 이는 사용자가 입력한 텍스트를 채팅방 이름으로 사용하기 위해 저장하는 과정입니다.
   roomName = roomNameInput.value;
@@ -105,7 +108,7 @@ function handleRoomSubmit(event) {
 form.addEventListener("submit", handleRoomSubmit);
 
 // addMessage 함수를 정의합니다. 이 함수는 메시지 문자열을 매개변수로 받아 처리합니다.
-function addMessage(message){
+function addMessage(message) {
   // 'room' 요소 내부에서 'ul' 태그를 찾아 ul 변수에 저장합니다.
   const ul = room.querySelector("ul");
   // 새로운 'li' 요소를 생성합니다.
@@ -118,7 +121,8 @@ function addMessage(message){
 
 // socket 객체에 'welcome' 이벤트 리스너를 추가합니다.
 // 이 이벤트는 서버로부터 'welcome' 신호를 받았을 때 실행됩니다.
-socket.on("welcome", (user, newCount) => {
+socket.on("welcome", (user, newCount, total) => {
+  console.log("❗", total);
   const h3 = room.querySelector("h3");
   h3.innerText = `Room ${roomName} (${newCount})`;
   // 'welcome' 이벤트가 발생하면 "사용자명 joined!"라는 메시지를 addMessage 함수를 사용하여 화면에 표시합니다.
@@ -127,7 +131,8 @@ socket.on("welcome", (user, newCount) => {
 
 // 'bye' 이벤트를 수신하면 실행될 함수를 등록합니다.
 // 이 이벤트는 채팅방에서 누군가가 나갈 때 발생합니다.
-socket.on("bye", (left, newCount) => {
+socket.on("bye", (left, newCount, total) => {
+  console.log("❗", total);
   const h3 = room.querySelector("h3");
   h3.innerText = `Room ${roomName} (${newCount})`;
   // "사용자명 left! ㅠㅠ" 메시지를 채팅 화면에 추가하는 addMessage 함수를 호출합니다.
@@ -148,7 +153,7 @@ socket.on("room_change", (rooms) => {
   roomList.innerHTML = "";
 
   // 받은 방 목록이 비어있다면 함수를 종료합니다. 즉, 표시할 방이 없으면 아무 작업도 하지 않습니다.
-  if(rooms.length === 0) {
+  if (rooms.length === 0) {
     return;
   }
 
@@ -161,4 +166,21 @@ socket.on("room_change", (rooms) => {
     // 생성된 li 요소를 roomList의 자식 요소로 추가합니다. 이로써 사용자 인터페이스에 방 목록이 표시됩니다.
     roomList.appendChild(li);
   });
+
+  const roomLists = document.getElementById("roomList");
+  roomLists.innerHTML = ""; // 기존 목록 초기화
+  rooms.forEach((room) => {
+    const li = document.createElement("li");
+    li.innerText = room;
+    roomLists.appendChild(li);
+  });
+});
+
+socket.on("status_update", ({ total, rooms, out }) => {
+  document.querySelector("#status p:nth-child(1)").innerText =
+    `Total Connections: ${total}`;
+  document.querySelector("#status p:nth-child(2)").innerText =
+    `Total Rooms: ${rooms}`;
+  document.querySelector("#status p:nth-child(3)").innerText =
+    `Waiting Users: ${out}`;
 });

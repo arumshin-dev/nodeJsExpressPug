@@ -68,9 +68,54 @@ function countRoom(roomName) {
   return wsServer.sockets.adapter.rooms.get(roomName)?.size || 0;
 }
 
+function countAll() {
+  const adapter = wsServer.sockets.adapter;
+
+  // 전체 접속자 수: 모든 소켓의 개수
+  const total = adapter.sids.size;
+
+  // 방 개수 및 각 방에 있는 사람 수
+  const roomsInfo = {};
+  adapter.rooms.forEach((sockets, roomName) => {
+    // 각 방에 소켓 ID가 방 이름과 동일하지 않으면, 그 방은 실제 채팅방입니다.
+    if (sockets.size > 0 && adapter.sids.has(roomName) === false) {
+      roomsInfo[roomName] = sockets.size;
+    }
+  });
+
+  // 대기 접속자 수 계산: 방에 속하지 않은 소켓의 수
+  let out = 0;
+  adapter.sids.forEach((rooms, socketId) => {
+    if (rooms.size === 1) { // 소켓이 자신의 ID로된 방에만 속해 있다면, 대기 중으로 간주
+      out++;
+    }
+  });
+
+  // 결과 객체 구성
+  var test = {
+    total: total, // 전체 접속자 수
+    rooms: roomsInfo, // 각 방의 이름과 그 방의 소켓 수
+    out: out // 대기 중인 소켓 수
+  };
+console.log("❗",test);
+  return test;
+}
+
+function updateStatus() {
+  const status = countAll();
+  wsServer.sockets.emit("status_update", {
+    total: status.total,
+    rooms: Object.keys(status.rooms).length,
+    out: status.out
+  });
+}
+
 // WebSocket 서버의 'connection' 이벤트 리스너를 설정합니다.
 // 이 이벤트는 클라이언트가 서버에 연결될 때마다 트리거됩니다.
 wsServer.on("connection", (socket) => {
+
+  updateStatus(); // 접속할 때 상태 업데이트
+  
   // 새로 연결된 소켓에 기본적으로 "Anon"이라는 닉네임을 할당합니다.
   socket["nickname"] = "Anon";
   // 클라이언트와 연결된 소켓에서 발생하는 모든 이벤트를 감지하고,
@@ -90,7 +135,7 @@ wsServer.on("connection", (socket) => {
     socket["nickname"] = roomName.nickname;
     // 클라이언트에게 작업이 완료되었음을 알리기 위해 콜백 함수(done)를 호출합니다.
     // 클라이언트가 제공한 이 콜백 함수는 서버의 작업이 완료된 후 클라이언트 측에서 특정 행동을 하도록 할 수 있습니다.
-    done(countRoom(roomName.payload));
+    done(countRoom(roomName.payload), countAll);
 
     // 서버에서 특정 채팅방(roomName.payload)의 모든 클라이언트에게 'welcome' 이벤트를 방송합니다.
     // 이 방송은 메시지를 보낸 클라이언트를 제외한 모든 클라이언트에게 전송됩니다.
@@ -98,6 +143,8 @@ wsServer.on("connection", (socket) => {
     // "room_change" 이벤트를 서버에 연결된 모든 소켓(클라이언트)에게 전송합니다.
     // 이 이벤트는 publicRooms() 함수를 호출하여 얻은 공개 채팅방 목록 배열을 보냅니다.
     wsServer.sockets.emit("room_change", publicRooms());
+
+    updateStatus(); // 방 상태 업데이트
   });
 
   // 클라이언트가 연결을 끊기 직전에 발생하는 'disconnecting' 이벤트를 리스닝합니다.
@@ -115,6 +162,8 @@ wsServer.on("connection", (socket) => {
     // 클라이언트가 서버에서 연결을 해제하면, 서버에 연결된 모든 소켓(클라이언트)에게 'room_change' 이벤트를 전송합니다.
     // 이 이벤트에는 현재 공개적으로 접근 가능한 채팅방의 목록을 포함합니다. 이 목록은 publicRooms() 함수를 호출함으로써 얻어집니다.
     wsServer.sockets.emit("room_change", publicRooms());
+
+    updateStatus(); // 접속 해제 시 상태 업데이트
   });
 
   // 'new_message' 이벤트를 리스닝합니다.
