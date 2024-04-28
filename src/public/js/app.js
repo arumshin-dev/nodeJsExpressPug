@@ -167,20 +167,29 @@ socket.on("room_change", (rooms) => {
     roomList.appendChild(li);
   });
 
-  const roomLists = document.getElementById("roomList");
-  roomLists.innerHTML = ""; // 기존 목록 초기화
-  rooms.forEach((room) => {
-    const li = document.createElement("li");
-    li.innerText = room;
-    roomLists.appendChild(li);
-  });
+  // const roomLists = document.getElementById("roomList");
+  // roomLists.innerHTML = ""; // 기존 목록 초기화
+  // rooms.forEach((room) => {
+  //   const li = document.createElement("li");
+  //   li.innerText = room;
+  //   roomLists.appendChild(li);
+  // });
 });
 
-socket.on("status_update", ({ total, rooms, out }) => {
+socket.on("status_update", ({ total, rooms, out, roomDetail }) => {
   document.querySelector("#status p:nth-child(1)").innerText =
     `Total Connections: ${total}`;
   document.querySelector("#status p:nth-child(2)").innerText =
     `Total Rooms: ${rooms}`;
   document.querySelector("#status p:nth-child(3)").innerText =
     `Waiting Users: ${out}`;
+
+  // 방 목록을 업데이트
+  const roomList = document.getElementById("roomList");
+  roomList.innerHTML = ""; // 기존 목록 초기화
+    roomDetail.forEach(room => {
+    const li = document.createElement("li");
+    li.innerText = room; // 방 이름과 참여 인원 수를 표시
+    roomList.appendChild(li);
+  });
 });

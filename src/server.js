@@ -97,16 +97,21 @@ function countAll() {
     rooms: roomsInfo, // 각 방의 이름과 그 방의 소켓 수
     out: out // 대기 중인 소켓 수
   };
-console.log("❗",test);
+
   return test;
 }
 
 function updateStatus() {
   const status = countAll();
+
+  // 방 정보에서 각 방의 이름과 인원 수를 문자열로 변환합니다.
+  const roomsDetail = Object.entries(status.rooms).map(([roomName, count]) => `${roomName} (${count})`);
+  
   wsServer.sockets.emit("status_update", {
     total: status.total,
     rooms: Object.keys(status.rooms).length,
-    out: status.out
+    out: status.out,
+    roomDetail: roomsDetail,
   });
 }
 
