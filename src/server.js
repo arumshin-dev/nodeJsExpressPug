@@ -132,19 +132,27 @@ wsServer.on("connection", (socket) => {
   // 'enter_room' 이벤트 리스너를 설정합니다.
   // 클라이언트가 채팅방에 들어가고자 할 때 이 이벤트가 발생합니다.
   socket.on("enter_room", (roomName, done) => {
+    // 방 이름이 객체로 전달되는 경우와 문자열로 전달되는 경우를 모두 처리
+    const room = typeof roomName === 'object' && roomName.payload ? roomName.payload : roomName;
+
+    // 방에 조인
+    socket.join(room);
     // 클라이언트 소켓을 지정된 방 이름에 해당하는 방에 조인시킵니다.
     // Socket.IO의 join 메소드를 사용하여 해당 방에 소켓을 추가합니다.
-    socket.join(roomName.payload);
-    console.log(roomName.payload);
+    // socket.join(roomName.payload);
+    // console.log(roomName.payload);
     // 소켓에서 전달된 닉네임(nickname)을 해당 소켓의 "nickname" 속성에 저장합니다.
     socket["nickname"] = roomName.nickname;
     // 클라이언트에게 작업이 완료되었음을 알리기 위해 콜백 함수(done)를 호출합니다.
     // 클라이언트가 제공한 이 콜백 함수는 서버의 작업이 완료된 후 클라이언트 측에서 특정 행동을 하도록 할 수 있습니다.
-    done(countRoom(roomName.payload), countAll);
+    // 방 입장 완료 후 클라이언트에 콜백 호출
+    done(countRoom(room));
+    // done(countRoom(roomName.payload));
 
     // 서버에서 특정 채팅방(roomName.payload)의 모든 클라이언트에게 'welcome' 이벤트를 방송합니다.
     // 이 방송은 메시지를 보낸 클라이언트를 제외한 모든 클라이언트에게 전송됩니다.
-    socket.to(roomName.payload).emit("welcome", socket.nickname, countRoom(roomName.payload));
+    socket.to(room).emit("welcome", socket.nickname, countRoom(room));
+    // socket.to(roomName.payload).emit("welcome", socket.nickname, countRoom(roomName.payload));
     // "room_change" 이벤트를 서버에 연결된 모든 소켓(클라이언트)에게 전송합니다.
     // 이 이벤트는 publicRooms() 함수를 호출하여 얻은 공개 채팅방 목록 배열을 보냅니다.
     wsServer.sockets.emit("room_change", publicRooms());
