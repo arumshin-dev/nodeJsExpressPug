@@ -64,6 +64,10 @@ function publicRooms() {
   return publicRooms;
 }
 
+function countRoom(roomName) {
+  return wsServer.sockets.adapter.rooms.get(roomName)?.size || 0;
+}
+
 // WebSocket 서버의 'connection' 이벤트 리스너를 설정합니다.
 // 이 이벤트는 클라이언트가 서버에 연결될 때마다 트리거됩니다.
 wsServer.on("connection", (socket) => {
@@ -86,11 +90,11 @@ wsServer.on("connection", (socket) => {
     socket["nickname"] = roomName.nickname;
     // 클라이언트에게 작업이 완료되었음을 알리기 위해 콜백 함수(done)를 호출합니다.
     // 클라이언트가 제공한 이 콜백 함수는 서버의 작업이 완료된 후 클라이언트 측에서 특정 행동을 하도록 할 수 있습니다.
-    done();
+    done(countRoom(roomName.payload));
 
     // 서버에서 특정 채팅방(roomName.payload)의 모든 클라이언트에게 'welcome' 이벤트를 방송합니다.
     // 이 방송은 메시지를 보낸 클라이언트를 제외한 모든 클라이언트에게 전송됩니다.
-    socket.to(roomName.payload).emit("welcome", socket.nickname);
+    socket.to(roomName.payload).emit("welcome", socket.nickname, countRoom(roomName.payload));
     // "room_change" 이벤트를 서버에 연결된 모든 소켓(클라이언트)에게 전송합니다.
     // 이 이벤트는 publicRooms() 함수를 호출하여 얻은 공개 채팅방 목록 배열을 보냅니다.
     wsServer.sockets.emit("room_change", publicRooms());
@@ -102,7 +106,7 @@ wsServer.on("connection", (socket) => {
     socket.rooms.forEach((room) => {
       // 해당 방에 있는 다른 클라이언트들에게 'bye' 이벤트를 방송합니다.
       // 이는 현재 클라이언트가 방을 떠나고 있음을 알리는 신호입니다.
-      socket.to(room).emit("bye", socket.nickname);
+      socket.to(room).emit("bye", socket.nickname, countRoom(room)-1);
     });
   });
 
