@@ -187,34 +187,45 @@ socket.on("status_update", ({ total, rooms, out, roomDetail }) => {
   // 방 목록을 업데이트
   const roomList = document.getElementById("roomList");
   roomList.innerHTML = ""; // 기존 목록 초기화
-    roomDetail.forEach(room => {
+  roomDetail.forEach(room => {
+    const roomInfo = room.split(" (");
+    const roomNameOnly = roomInfo[0];
+    const roomCount = roomInfo[1].slice(0, -1);
+    
     const li = document.createElement("li");
-    li.innerText = room; // 방 이름과 참여 인원 수를 표시
-    li.addEventListener("click", () => {
-      // socket.emit("enter_room", room.split(" (")[0]); // 괄호 전의 문자열이 방 이름
-      // const roomNameInput = form.querySelector("#roomName");
-      // form 요소 내의 #nickname 요소를 찾아 nickNameInput 변수에 저장합니다.
-      const nickNameInput = form.querySelector("#nickname");
-      // 소켓을 통해 "enter_room" 이벤트를 서버로 전송하고, 서버로부터 응답을 받으면 콜백 함수를 실행합니다.
-      // roomNameInput.value는 사용자가 입력한 방 이름 또는 데이터를 payload로 서버에 전송합니다.
-      // nickNameInput.value는 사용자가 입력한 닉네임 또는 데이터를 nickname 서버에 전송합니다.
-      socket.emit(
-        "enter_room",
-        { payload: room.split(" (")[0],
-         nickname: nickNameInput.value || "anonymous"
-        },
-        showRoom,
-      );
-      // roomNameInput 요소의 현재 값(value)을 roomName 변수에 할당합니다.
-      // 이는 사용자가 입력한 텍스트를 채팅방 이름으로 사용하기 위해 저장하는 과정입니다.
-      roomName = room.split(" (")[0];
-      // room 요소 내의 #name input 요소를 찾아 changeNameInput 변수에 저장합니다.
-      const changeNameInput = room.querySelector("#name input");
-      // changeNameInput 요소의 현재 값(value)을 nickNameInput.value값으로 할당합니다.
-      changeNameInput.value = nickNameInput.value;
-      // 메시지 전송 후 입력 필드를 비웁니다.
-      nickNameInput.value = "";
-    });
+    li.innerText = `${roomNameOnly} (${roomCount})`; // 방 이름과 참여 인원 수를 표시
+
+    // 현재 사용자가 있는 방인 경우 스타일 변경
+    if (roomNameOnly === roomName) {
+      li.style.color = "red"; // 현재 방을 빨간색으로 표시
+      li.style.fontWeight = "bold"; // 글자를 굵게
+    }
+    if (roomNameOnly !== roomName) { // 현재 방이 아닐 때만 방 변경
+      li.addEventListener("click", () => {
+        // socket.emit("enter_room", room.split(" (")[0]); // 괄호 전의 문자열이 방 이름
+        
+        // form 요소 내의 #nickname 요소를 찾아 nickNameInput 변수에 저장합니다.
+        const nickName = form.querySelector("#nickname").value || "anonymous";
+        // 소켓을 통해 "enter_room" 이벤트를 서버로 전송하고, 서버로부터 응답을 받으면 콜백 함수를 실행합니다.
+        // roomNameInput.value는 사용자가 입력한 방 이름 또는 데이터를 payload로 서버에 전송합니다.
+        // nickNameInput.value는 사용자가 입력한 닉네임 또는 데이터를 nickname 서버에 전송합니다.
+        socket.emit(
+          "enter_room",
+          { payload: room.split(" (")[0],
+           nickname: nickName
+          },
+          showRoom,
+        );
+        // roomNameInput 요소의 현재 값(value)을 roomName 변수에 할당합니다.
+        // 이는 사용자가 입력한 텍스트를 채팅방 이름으로 사용하기 위해 저장하는 과정입니다.
+        roomName = room.split(" (")[0];
+        // room 요소 내의 #name input 요소를 찾아 changeNameInput 변수에 저장합니다.
+        const changeNameInput = document.querySelector("#room #name input");
+        // changeNameInput 요소의 현재 값(value)을 nickNameInput.value값으로 할당합니다.
+        changeNameInput.value = nickName;
+        
+      });
+    }
     roomList.appendChild(li);
   });
 });
