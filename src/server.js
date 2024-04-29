@@ -2,7 +2,8 @@
 import http from "http";
 
 //socket.io 모듈 가져오기 http://localhost:3000/socket.io/socket.io.js
-import SocketIO from "socket.io";
+import {Server} from "socket.io";
+import {instrument} from "@socket.io/admin-ui";
 /*
 import webSocket from 'ws';
 */
@@ -33,7 +34,16 @@ const handleListen = () => console.log(`Listening on http://localhost:3000`);
 // HTTP 서버를 Express 앱과 함께 생성
 const httpServer = http.createServer(app);
 // Socket.IO 라이브러리를 사용하여 httpServer를 기반으로 새 WebSocket 서버(wsServer) 인스턴스를 생성합니다.
-const wsServer = SocketIO(httpServer);
+const wsServer = new Server(httpServer, {
+  cors: {
+    origin: ["https://admin.socket.io"],
+    credentials: true,
+  },
+});
+
+instrument(wsServer, {
+  auth: false,
+});
 
 // publicRooms 함수 정의: 현재 서버에 존재하는 공개 채팅방 목록을 반환합니다.
 function publicRooms() {
