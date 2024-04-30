@@ -1,5 +1,5 @@
 {
   "ignore": ["src/public/*"],
-  "exec": "babel-node src/server.js",
+  "exec": "babel-node src/serverVideo.js",
   "_comment": "이 설정은 src/public 디렉토리의 파일 변화를 무시하고, babel-node를 사용하여 src/server.js를 실행합니다."
 }
