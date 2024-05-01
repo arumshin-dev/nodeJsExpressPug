@@ -20,10 +20,14 @@ async function getCameras() {
   try{
     const devices = await navigator.mediaDevices.enumerateDevices();
     const cameras = devices.filter(device => device.kind === "videoinput");
+    const currentCamera = myStream.getVideoTracks()[0];
     cameras.forEach((camera) => {
       const option = document.createElement("option");
       option.value = camera.deviceId;
       option.innerText = camera.label;
+      if(currentCamera.label == camera.label) {
+        option.selected = true;
+      }
       camerasSelect.appendChild(option);
     });
   }catch(e){
@@ -32,18 +36,25 @@ async function getCameras() {
 }
 
 // 비동기 함수 getMedia를 정의합니다. 이 함수는 사용자의 비디오 및 오디오를 가져옵니다.
-async function getMedia() {
+async function getMedia(deviceId) {
+  const initialConstraints = {
+    audio: true,
+    video: { facingMode: "user"},
+  };
+  const cameraConstraints = {
+    audio: true,
+    video: { deviceId: { exact: deviceId } },
+  }
   try {
     // navigator.mediaDevices.getUserMedia를 사용하여 비디오 및 오디오 스트림을 요청합니다.
-    myStream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: true,
-    });
+    myStream = await navigator.mediaDevices.getUserMedia(deviceId ? cameraConstraints : initialConstraints);
     // 스트림 객체를 콘솔에 출력합니다.
-    console.log(myStream);
+    //console.log(myStream);
     // 가져온 미디어 스트림을 video 요소의 srcObject 속성에 할당하여 비디오를 표시합니다.
     myFace.srcObject = myStream;
-    await getCameras();
+    if (!deviceId){
+      await getCameras();
+    }
   } catch (e) {
     // 미디어 스트림을 가져오는 과정에서 오류가 발생하면 콘솔에 오류 메시지를 출력합니다.
     console.log(e);
@@ -81,7 +92,17 @@ function handleCameraClick() {
   }
 }
 
+async function handleCameraChange(){
+  await getMedia(camerasSelect.value);
+  if (muted) {
+    myStream.getAudioTracks().forEach((track) => (track.enabled = false));
+  } else {
+    myStream.getAudioTracks().forEach((track) => (track.enabled = true));
+  }
+}
+
 // muteBtn 요소에 "click" 이벤트 리스너를 추가하여 handleMuteClick 함수를 연결합니다.
 muteBtn.addEventListener("click", handleMuteClick);
 // cameraBtn 요소에 "click" 이벤트 리스너를 추가하여 handleCameraClick 함수를 연결합니다.
 cameraBtn.addEventListener("click", handleCameraClick);
+  camerasSelect.addEventListener("input", handleCameraChange);
