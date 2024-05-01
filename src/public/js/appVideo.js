@@ -38,6 +38,7 @@ getMedia();
 
 // 음소거 버튼 클릭 이벤트를 처리하는 함수를 정의합니다.
 function handleMuteClick() {
+  myStream.getAudioTracks().forEach((track)=>(track.enabled = !track.enabled));
   if (!muted) {
     // 현재 음소거 상태가 아니라면 버튼의 텍스트를 "Unmute"로 변경하고, 음소거 상태를 true로 설정합니다.
     muteBtn.innerText = "Unmute";
@@ -51,6 +52,7 @@ function handleMuteClick() {
 
 // 카메라 버튼 클릭 이벤트를 처리하는 함수를 정의합니다.
 function handleCameraClick() {
+  myStream.getVideoTracks().forEach((track)=>(track.enabled = !track.enabled));
   if (cameraOff) {
     // 현재 카메라가 꺼져 있다면 버튼의 텍스트를 "Turn Camera Off"로 변경하고, 카메라 상태를 false로 설정합니다.
     cameraBtn.innerText = "Turn Camera Off";
