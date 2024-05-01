@@ -29,3 +29,8 @@ app.get("/*", (req, res) => res.redirect("/"));
 const httpServer = http.createServer(app);
 // 생성된 HTTP 서버 위에 WebSocket 서버를 구축합니다. 이렇게 함으로써 HTTP와 WebSocket 요청을 동일한 포트에서 처리할 수 있습니다.
 const wsServer = SocketIO(httpServer);
+
+const PORT = 3000;
+httpServer.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
