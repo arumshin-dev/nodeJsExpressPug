@@ -7,6 +7,7 @@ const myFace = document.getElementById("myFace");
 const muteBtn = document.getElementById("mute");
 // HTML 문서에서 카메라 버튼을 선택하여 cameraBtn 변수에 저장합니다.
 const cameraBtn = document.getElementById("camera");
+const camerasSelect = document.getElementById("cameras");
 
 // 미디어 스트림을 저장할 변수를 선언합니다.
 let myStream;
@@ -14,6 +15,21 @@ let myStream;
 let muted = false;
 // 카메라 상태를 저장할 변수를 선언하고, 초기값은 false로 설정합니다. (카메라가 켜져 있음)
 let cameraOff = false;
+
+async function getCameras() {
+  try{
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const cameras = devices.filter(device => device.kind === "videoinput");
+    cameras.forEach((camera) => {
+      const option = document.createElement("option");
+      option.value = camera.deviceId;
+      option.innerText = camera.label;
+      camerasSelect.appendChild(option);
+    });
+  }catch(e){
+    console.log(e);
+  }
+}
 
 // 비동기 함수 getMedia를 정의합니다. 이 함수는 사용자의 비디오 및 오디오를 가져옵니다.
 async function getMedia() {
@@ -27,6 +43,7 @@ async function getMedia() {
     console.log(myStream);
     // 가져온 미디어 스트림을 video 요소의 srcObject 속성에 할당하여 비디오를 표시합니다.
     myFace.srcObject = myStream;
+    await getCameras();
   } catch (e) {
     // 미디어 스트림을 가져오는 과정에서 오류가 발생하면 콘솔에 오류 메시지를 출력합니다.
     console.log(e);
