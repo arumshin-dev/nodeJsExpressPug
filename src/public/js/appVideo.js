@@ -21,6 +21,8 @@ let myStream;
 let muted = false;
 // 카메라 상태를 저장할 변수를 선언하고, 초기값은 false로 설정합니다. (카메라가 켜져 있음)
 let cameraOff = false;
+let roomName;
+
 // getCameras라는 비동기 함수를 정의합니다.
 async function getCameras() {
   try {
@@ -150,11 +152,23 @@ camerasSelect.addEventListener("input", handleCameraChange);
 
 const welcomeForm = welcome.querySelector("form");
 
+function startMedia() {
+  welcome.hidden = true;
+  call.hidden = false;
+  getMedia();
+}
+
 function handleWelcomeSubmit(event) {
   event.preventDefault();
   const input = welcomeForm.querySelector("input");
-  socket.emit("join_room",input.value);
+  socket.emit("join_room", input.value, startMedia);
+  roomName = input.value;
   input.value = "";
 }
 
 welcomeForm.addEventListener("submit",handleWelcomeSubmit);
+
+
+socket.on("welcome", () => {
+  console.log("someone joined");
+})
