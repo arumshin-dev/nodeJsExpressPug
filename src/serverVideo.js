@@ -30,10 +30,18 @@ const httpServer = http.createServer(app);
 // 생성된 HTTP 서버 위에 WebSocket 서버를 구축합니다. 이렇게 함으로써 HTTP와 WebSocket 요청을 동일한 포트에서 처리할 수 있습니다.
 const wsServer = SocketIO(httpServer);
 
-wsServer.on("connection", (socket) =>{
-  socket.on("join_room", (roomName, done) =>{
+// WebSocket 서버의 'connection' 이벤트를 리스닝합니다.
+// 이 이벤트는 새 클라이언트가 서버에 연결될 때 마다 트리거됩니다.
+wsServer.on("connection", (socket) => {
+  // 연결된 클라이언트의 소켓에 대하여 'join_room' 이벤트를 리스닝합니다.
+  // 클라이언트가 특정 방에 참여하고자 할 때 이 이벤트가 발생합니다.
+  socket.on("join_room", (roomName, done) => {
+    // 클라이언트 소켓을 roomName 변수로 명시된 방에 추가합니다.
     socket.join(roomName);
+    // done 콜백 함수를 호출하여 클라이언트에게 방 참여가 완료되었음을 알립니다.
     done();
+    // 방금 참여한 방에 있는 다른 클라이언트들에게 'welcome' 이벤트를 발송합니다.
+    // 이 이벤트는 새로운 사용자의 입장을 다른 참여자들에게 알립니다.
     socket.to(roomName).emit("welcome");
   });
 });
