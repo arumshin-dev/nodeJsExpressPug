@@ -28,6 +28,7 @@ let cameraOff = false;
 // roomName 변수를 선언하고 초기에는 undefined로 설정합니다.
 // 이 변수는 나중에 채팅방 이름을 저장하는 데 사용될 수 있습니다.
 let roomName;
+let myPeerConnection;
 
 // getCameras라는 비동기 함수를 정의합니다.
 async function getCameras() {
@@ -156,17 +157,20 @@ cameraBtn.addEventListener("click", handleCameraClick);
 // 이 리스너는 사용자가 카메라 선택 드롭다운 메뉴에서 입력(카메라 선택 변경)을 할 때마다 작동합니다.
 camerasSelect.addEventListener("input", handleCameraChange);
 
+// Welcome Form (join a room)
+
 // 'welcome' 요소에서 'form'을 찾아 'welcomeForm' 변수에 저장합니다.
 const welcomeForm = welcome.querySelector("form");
 
 // startMedia 함수를 정의합니다. 이 함수는 미디어 스트림을 시작하는 기능을 담당합니다.
-function startMedia() {
+async function startMedia() {
   // welcome 요소를 숨깁니다.
   welcome.hidden = true;
   // call 요소를 표시합니다.
   call.hidden = false;
   // 미디어 스트림을 시작하는 함수를 호출합니다.
-  getMedia();
+  await getMedia();
+  makeConnection();
 }
 
 // handleWelcomeSubmit 함수를 정의합니다. 이 함수는 폼 제출 이벤트를 처리합니다.
@@ -186,8 +190,25 @@ function handleWelcomeSubmit(event) {
 // welcomeForm 요소에 'submit' 이벤트 리스너를 추가합니다. 폼이 제출될 때 handleWelcomeSubmit 함수가 호출됩니다.
 welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
+// Sicket Code
+
 // socket 객체에 'welcome' 이벤트 리스너를 추가합니다. 'welcome' 이벤트가 수신되면 콘솔에 메시지를 출력합니다.
-socket.on("welcome", () => {
-  // 콘솔에 "someone joined"를 출력합니다. 이는 다른 사용자가 방에 참여했음을 나타냅니다.
-  console.log("someone joined");
+socket.on("welcome", async () => {
+  const offer = await myPeerConnection.createOffer();
+  myPeerConnection.setLocalDescription(offer);
+  console.log("sent the offer");
+  socket.emit("offer", offer, roomName);
 });
+
+socket.on("offer" ,(offer) =>{
+  console.log(offer);
+});
+
+//RTC Code
+
+function makeConnection() {
+  myPeerConnection = new RTCPeerConnection();
+  myStream
+    .getTracks()
+    .forEach((track) => myPeerConnection.addTrack(track, myStream));
+}

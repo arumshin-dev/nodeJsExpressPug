@@ -44,6 +44,9 @@ wsServer.on("connection", (socket) => {
     // 이 이벤트는 새로운 사용자의 입장을 다른 참여자들에게 알립니다.
     socket.to(roomName).emit("welcome");
   });
+  socket.on("offer", (offer, roomName) => {
+    socket.to(roomName).emit("offer", offer);
+  });
 });
 
 const PORT = 3000;
