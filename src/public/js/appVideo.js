@@ -28,6 +28,8 @@ let cameraOff = false;
 // roomName 변수를 선언하고 초기에는 undefined로 설정합니다.
 // 이 변수는 나중에 채팅방 이름을 저장하는 데 사용될 수 있습니다.
 let roomName;
+// myPeerConnection 변수를 선언합니다. 이 변수는 나중에 RTCPeerConnection 객체의 인스턴스를 저장하는 데 사용될 수 있습니다.
+// RTCPeerConnection은 WebRTC API의 일부로, 브라우저 간 피어 투 피어 연결을 설정하는 데 사용됩니다.
 let myPeerConnection;
 
 // getCameras라는 비동기 함수를 정의합니다.
@@ -162,14 +164,17 @@ camerasSelect.addEventListener("input", handleCameraChange);
 // 'welcome' 요소에서 'form'을 찾아 'welcomeForm' 변수에 저장합니다.
 const welcomeForm = welcome.querySelector("form");
 
-// startMedia 함수를 정의합니다. 이 함수는 미디어 스트림을 시작하는 기능을 담당합니다.
+// startMedia라는 비동기 함수를 정의합니다. 이 함수는 미디어 스트림을 시작하는 기능을 담당합니다.
 async function startMedia() {
-  // welcome 요소를 숨깁니다.
+  // welcome 요소를 숨깁니다. 이는 사용자가 미디어 스트리밍을 시작하면 환영 메시지 또는 초기 화면을 숨기기 위함입니다.
   welcome.hidden = true;
-  // call 요소를 표시합니다.
+  // call 요소를 보이게 합니다. 이는 사용자에게 통화 또는 미디어 스트리밍 관련 UI를 제공하기 위함입니다.
   call.hidden = false;
-  // 미디어 스트림을 시작하는 함수를 호출합니다.
+  // getMedia 함수를 비동기적으로 호출하고, 이 함수의 실행이 완료될 때까지 기다립니다.
+  // getMedia 함수는 사용자의 미디어 장치(카메라, 마이크)로부터 미디어 스트림을 획득하는 기능을 수행합니다.
   await getMedia();
+  // makeConnection 함수를 호출하여 WebRTC 연결을 초기화합니다.
+  // 이 함수는 획득된 미디어 스트림을 이용하여 피어 간 연결을 설정하는 로직을 포함합니다.
   makeConnection();
 }
 
@@ -192,23 +197,45 @@ welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
 // Sicket Code
 
-// socket 객체에 'welcome' 이벤트 리스너를 추가합니다. 'welcome' 이벤트가 수신되면 콘솔에 메시지를 출력합니다.
+// 'welcome' 이벤트가 socket에서 수신되면 실행되는 이벤트 리스너를 설정합니다.
+// 이 이벤트는 다른 클라이언트가 채팅방이나 통화 방에 참여하였을 때 발생합니다.
 socket.on("welcome", async () => {
+  // RTCPeerConnection 객체(myPeerConnection)를 사용하여 SDP(Session Description Protocol) 오퍼를 생성합니다.
+  // createOffer 메서드는 비동기적으로 실행되며 프로미스를 반환합니다.
   const offer = await myPeerConnection.createOffer();
+  // 생성된 오퍼를 로컬 디스크립션으로 설정합니다.
+  // setLocalDescription 메서드는 myPeerConnection에 로컬 디스크립션(여기서는 'offer')을 설정하여,
+  // 로컬 미디어 설정을 저장하고 이를 원격 피어에게 전달할 준비를 합니다.
   myPeerConnection.setLocalDescription(offer);
+  // 콘솔에 "sent the offer" 메시지를 출력하여 오퍼가 생성되고 설정되었음을 로깅합니다.
   console.log("sent the offer");
+  // socket을 통해 'offer' 이벤트와 함께 생성된 오퍼 및 현재 방 이름(roomName)을 서버에 전송합니다.
+  // 이는 방의 다른 참여자들에게 오퍼를 전달하여 피어 투 피어 연결을 시작하도록 요청합니다.
   socket.emit("offer", offer, roomName);
 });
 
-socket.on("offer" ,(offer) =>{
+// 'offer' 이벤트를 리스닝하기 위해 socket 객체에 이벤트 리스너를 설정합니다.
+// 이 이벤트는 다른 피어로부터 연결 제안을 받았을 때 발생합니다.
+socket.on("offer", (offer) => {
+  // 콘솔에 수신된 오퍼 정보를 출력합니다.
+  // 이 로그는 개발 중에 수신된 오퍼의 내용을 확인하는 데 유용합니다.
   console.log(offer);
 });
 
 //RTC Code
 
+// makeConnection 함수를 정의합니다. 이 함수는 WebRTC 피어 연결을 설정합니다.
 function makeConnection() {
+  // RTCPeerConnection 객체를 생성하고 myPeerConnection 변수에 할당합니다.
+  // 이 객체는 로컬과 원격 피어 간의 연결을 관리하며, 미디어 데이터 및 기타 데이터 스트림을 교환하는 데 사용됩니다.
   myPeerConnection = new RTCPeerConnection();
+
+  // myStream 객체에서 모든 미디어 트랙을 가져와 각 트랙을 myPeerConnection에 추가합니다.
+  // myStream은 getUserMedia()로 획득된 미디어 스트림을 나타내며, 비디오 및 오디오 트랙을 포함할 수 있습니다.
   myStream
     .getTracks()
-    .forEach((track) => myPeerConnection.addTrack(track, myStream));
+    .forEach((track) => 
+      // myPeerConnection의 addTrack 메소드를 사용하여 각 트랙을 연결에 추가합니다.
+      // 이 과정은 로컬 미디어 스트림을 연결에 통합하여 원격 피어와 공유할 수 있도록 합니다.
+      myPeerConnection.addTrack(track, myStream));
 }

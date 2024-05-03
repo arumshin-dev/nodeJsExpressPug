@@ -44,7 +44,10 @@ wsServer.on("connection", (socket) => {
     // 이 이벤트는 새로운 사용자의 입장을 다른 참여자들에게 알립니다.
     socket.to(roomName).emit("welcome");
   });
+  // 'offer' 이벤트를 리스닝합니다. 이 이벤트는 WebRTC 연결 초기화 과정 중 하나의 클라이언트가 다른 클라이언트에게 연결을 제안할 때 발생합니다.
   socket.on("offer", (offer, roomName) => {
+    // socket.to 함수를 사용하여 특정 방에 있는 다른 클라이언트들에게 'offer' 이벤트를 전송합니다.
+    // 이 때, 첫 번째 클라이언트가 생성한 오퍼(offer) 데이터도 함께 전송됩니다.
     socket.to(roomName).emit("offer", offer);
   });
 });
