@@ -215,18 +215,26 @@ socket.on("welcome", async () => {
   socket.emit("offer", offer, roomName);
 });
 
-// 'offer' 이벤트를 리스닝하기 위해 socket 객체에 이벤트 리스너를 설정합니다.
-// 이 이벤트는 다른 피어로부터 연결 제안을 받았을 때 발생합니다.
+// 웹소켓에서 'offer' 이벤트를 수신하는 리스너를 설정합니다. 이 이벤트에는 원격 피어로부터의 SDP 오퍼가 포함됩니다.
 socket.on("offer", async (offer) => {
-  // 콘솔에 수신된 오퍼 정보를 출력합니다.
-  // 이 로그는 개발 중에 수신된 오퍼의 내용을 확인하는 데 유용합니다.
+  // 받은 오퍼를 통해 피어 연결의 원격 설명을 설정합니다.
+  // 이는 원격 피어가 사용하는 미디어 형식과 옵션을 이해하도록 피어 연결을 구성합니다.
   myPeerConnection.setRemoteDescription(offer);
+
+  // 받은 오퍼에 대한 응답으로 SDP 답변을 생성합니다. 이 작업은 비동기적으로 수행되며,
+  // 답변이 완성되면 이를 오퍼를 보낸 피어에게 보내기 위한 준비가 됩니다.
   const answer = await myPeerConnection.createAnswer();
+
+  // 생성된 답변으로 로컬 설명을 설정합니다. 이 작업은 로컬 설정을 완료하고,
+  // 피어 연결이 이 답변을 원격 피어에게 보내 통신 절차를 완료할 준비를 합니다.
   myPeerConnection.setLocalDescription(answer);
-  socket.emit("answer", answer, roomName);
 });
 
-socket.on("answer", (answer) => {
+// 'answer' 이벤트를 수신하는 리스너를 설정합니다. 이 이벤트는 원격 피어가 보낸 SDP 답변을 포함하며,
+// 이는 로컬 피어가 보낸 오퍼에 대한 응답입니다.
+socket.on("answer", async (answer) => {
+  // 받은 답변을 통해 피어 연결의 원격 설명을 설정합니다.
+  // 이 설정은 미디어 세션에 대해 원격 피어가 동의한 구성을 포함합니다.
   myPeerConnection.setRemoteDescription(answer);
   
 });

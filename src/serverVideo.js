@@ -50,9 +50,15 @@ wsServer.on("connection", (socket) => {
     // 이 때, 첫 번째 클라이언트가 생성한 오퍼(offer) 데이터도 함께 전송됩니다.
     socket.to(roomName).emit("offer", offer);
   });
+  // WebSocket에서 'answer' 이벤트를 수신하는 리스너를 설정합니다.
+  // 이 이벤트는 한 피어가 연결 제안(offer)에 응답하여 생성한 SDP 답변을 포함하고 있습니다.
   socket.on("answer", (answer, roomName) => {
+    // socket.to(roomName) 메소드를 사용하여 특정 방(roomName)에 있는 다른 클라이언트들에게
+    // 'answer' 이벤트를 전송합니다. 이때, 전송되는 데이터로는 SDP 답변(answer)이 포함됩니다.
+    // 이는 해당 방의 다른 참가자들이 SDP 답변을 받아 연결 설정을 완료할 수 있도록 합니다.
     socket.to(roomName).emit("answer", answer);
   });
+
 });
 
 const PORT = 3000;
