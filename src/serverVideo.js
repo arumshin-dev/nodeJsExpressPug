@@ -58,7 +58,9 @@ wsServer.on("connection", (socket) => {
     // 이는 해당 방의 다른 참가자들이 SDP 답변을 받아 연결 설정을 완료할 수 있도록 합니다.
     socket.to(roomName).emit("answer", answer);
   });
-
+  socket.on("ice", (ice, roomName) => {
+    socket.to(roomName).emit("ice", ice);
+  });
 });
 
 const PORT = 3000;

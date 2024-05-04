@@ -217,7 +217,7 @@ socket.on("welcome", async () => {
 
 // 웹소켓에서 'offer' 이벤트를 수신하는 리스너를 설정합니다. 이 이벤트에는 원격 피어로부터의 SDP 오퍼가 포함됩니다.
 socket.on("offer", async (offer) => {
-  console.log("recieved the offer");
+  console.log("received the offer");
   // 받은 오퍼를 통해 피어 연결의 원격 설명을 설정합니다.
   // 이는 원격 피어가 사용하는 미디어 형식과 옵션을 이해하도록 피어 연결을 구성합니다.
   myPeerConnection.setRemoteDescription(offer);
@@ -236,12 +236,17 @@ socket.on("offer", async (offer) => {
 // 'answer' 이벤트를 수신하는 리스너를 설정합니다. 이 이벤트는 원격 피어가 보낸 SDP 답변을 포함하며,
 // 이는 로컬 피어가 보낸 오퍼에 대한 응답입니다.
 socket.on("answer", async (answer) => {
-  console.log("recieved the answer");
+  console.log("received the answer");
   // 받은 답변을 통해 피어 연결의 원격 설명을 설정합니다.
   // 이 설정은 미디어 세션에 대해 원격 피어가 동의한 구성을 포함합니다.
   myPeerConnection.setRemoteDescription(answer);
   
 });
+
+socket.on("ice", ice => {
+  console.log("received ice candidate");
+  myPeerConnection.addIceCandidate(ice);
+})
 
 //RTC Code
 
@@ -262,6 +267,7 @@ function makeConnection() {
 }
 
 function handleIce(data) {
-  console.log("got ice candidate");
+  console.log("sent ice candidate");
+  socket.emit("ice", data.candidate, roomName);
   console.log(data);
 }
