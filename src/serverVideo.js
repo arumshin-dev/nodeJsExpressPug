@@ -35,11 +35,11 @@ const wsServer = SocketIO(httpServer);
 wsServer.on("connection", (socket) => {
   // 연결된 클라이언트의 소켓에 대하여 'join_room' 이벤트를 리스닝합니다.
   // 클라이언트가 특정 방에 참여하고자 할 때 이 이벤트가 발생합니다.
-  socket.on("join_room", (roomName, done) => {
+  socket.on("join_room", (roomName) => {
     // 클라이언트 소켓을 roomName 변수로 명시된 방에 추가합니다.
     socket.join(roomName);
     // done 콜백 함수를 호출하여 클라이언트에게 방 참여가 완료되었음을 알립니다.
-    done();
+    
     // 방금 참여한 방에 있는 다른 클라이언트들에게 'welcome' 이벤트를 발송합니다.
     // 이 이벤트는 새로운 사용자의 입장을 다른 참여자들에게 알립니다.
     socket.to(roomName).emit("welcome");
@@ -49,6 +49,9 @@ wsServer.on("connection", (socket) => {
     // socket.to 함수를 사용하여 특정 방에 있는 다른 클라이언트들에게 'offer' 이벤트를 전송합니다.
     // 이 때, 첫 번째 클라이언트가 생성한 오퍼(offer) 데이터도 함께 전송됩니다.
     socket.to(roomName).emit("offer", offer);
+  });
+  socket.on("answer", (answer, roomName) => {
+    socket.to(roomName).emit("answer", answer);
   });
 });
 
