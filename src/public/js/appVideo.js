@@ -217,6 +217,7 @@ socket.on("welcome", async () => {
 
 // 웹소켓에서 'offer' 이벤트를 수신하는 리스너를 설정합니다. 이 이벤트에는 원격 피어로부터의 SDP 오퍼가 포함됩니다.
 socket.on("offer", async (offer) => {
+  console.log("recieved the offer");
   // 받은 오퍼를 통해 피어 연결의 원격 설명을 설정합니다.
   // 이는 원격 피어가 사용하는 미디어 형식과 옵션을 이해하도록 피어 연결을 구성합니다.
   myPeerConnection.setRemoteDescription(offer);
@@ -228,11 +229,14 @@ socket.on("offer", async (offer) => {
   // 생성된 답변으로 로컬 설명을 설정합니다. 이 작업은 로컬 설정을 완료하고,
   // 피어 연결이 이 답변을 원격 피어에게 보내 통신 절차를 완료할 준비를 합니다.
   myPeerConnection.setLocalDescription(answer);
+  socket.emit("answer", answer, roomName);
+  console.log("sent the answer");
 });
 
 // 'answer' 이벤트를 수신하는 리스너를 설정합니다. 이 이벤트는 원격 피어가 보낸 SDP 답변을 포함하며,
 // 이는 로컬 피어가 보낸 오퍼에 대한 응답입니다.
 socket.on("answer", async (answer) => {
+  console.log("recieved the answer");
   // 받은 답변을 통해 피어 연결의 원격 설명을 설정합니다.
   // 이 설정은 미디어 세션에 대해 원격 피어가 동의한 구성을 포함합니다.
   myPeerConnection.setRemoteDescription(answer);
@@ -246,7 +250,7 @@ function makeConnection() {
   // RTCPeerConnection 객체를 생성하고 myPeerConnection 변수에 할당합니다.
   // 이 객체는 로컬과 원격 피어 간의 연결을 관리하며, 미디어 데이터 및 기타 데이터 스트림을 교환하는 데 사용됩니다.
   myPeerConnection = new RTCPeerConnection();
-
+  myPeerConnection.addEventListener("icecandidate", handleIce);
   // myStream 객체에서 모든 미디어 트랙을 가져와 각 트랙을 myPeerConnection에 추가합니다.
   // myStream은 getUserMedia()로 획득된 미디어 스트림을 나타내며, 비디오 및 오디오 트랙을 포함할 수 있습니다.
   myStream
@@ -255,4 +259,9 @@ function makeConnection() {
       // myPeerConnection의 addTrack 메소드를 사용하여 각 트랙을 연결에 추가합니다.
       // 이 과정은 로컬 미디어 스트림을 연결에 통합하여 원격 피어와 공유할 수 있도록 합니다.
       myPeerConnection.addTrack(track, myStream));
+}
+
+function handleIce(data) {
+  console.log("got ice candidate");
+  console.log(data);
 }
