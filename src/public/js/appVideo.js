@@ -148,6 +148,15 @@ async function handleCameraChange(){
     // 음소거 상태가 아닌 경우, 모든 오디오 트랙을 활성화합니다.
     myStream.getAudioTracks().forEach((track) => (track.enabled = true));
   }
+
+  if(myPeerConnection) {
+    const videoTrack = myStream.getVideoTracks()[0];
+    const videoSender = myPeerConnection
+      .getSenders()
+      .find((sender) => sender.track.kind === "video");
+    console.log(videoSender);
+    videoSender.replaceTrack(videoTrack);
+  }
 }
 
 
