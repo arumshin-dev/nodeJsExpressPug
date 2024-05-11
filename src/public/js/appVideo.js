@@ -28,6 +28,7 @@ let cameraOff = false;
 // roomName 변수를 선언하고 초기에는 undefined로 설정합니다.
 // 이 변수는 나중에 채팅방 이름을 저장하는 데 사용될 수 있습니다.
 let roomName;
+let nickName;
 // myPeerConnection 변수를 선언합니다. 이 변수는 나중에 RTCPeerConnection 객체의 인스턴스를 저장하는 데 사용될 수 있습니다.
 // RTCPeerConnection은 WebRTC API의 일부로, 브라우저 간 피어 투 피어 연결을 설정하는 데 사용됩니다.
 let myPeerConnection;
@@ -165,9 +166,9 @@ async function handleCameraChange(){
 muteBtn.addEventListener("click", handleMuteClick);
 // cameraBtn 요소에 "click" 이벤트 리스너를 추가하여 handleCameraClick 함수를 연결합니다.
 cameraBtn.addEventListener("click", handleCameraClick);
-// camerasSelect 요소에 'input' 이벤트 리스너를 추가합니다.
+// camerasSelect 요소에 'roomNameInput' 이벤트 리스너를 추가합니다.
 // 이 리스너는 사용자가 카메라 선택 드롭다운 메뉴에서 입력(카메라 선택 변경)을 할 때마다 작동합니다.
-camerasSelect.addEventListener("input", handleCameraChange);
+camerasSelect.addEventListener("roomNameInput", handleCameraChange);
 
 // Welcome Form (join a room)
 
@@ -192,15 +193,23 @@ async function initCall() {
 async function handleWelcomeSubmit(event) {
   // 기본 폼 제출 동작을 방지합니다.
   event.preventDefault();
-  // welcomeForm에서 'input' 요소를 찾아 input 변수에 저장합니다.
-  const input = welcomeForm.querySelector("input");
+  // welcomeForm에서 'roomNameInput' 요소를 찾아 roomNameInput 변수에 저장합니다.
+  const roomNameInput = welcomeForm.querySelector("#roomName");
+  const nickNameInput = welcomeForm.querySelector("#nickName");
   await initCall();
-  // socket을 통해 'join_room' 이벤트를 서버에 전송하며, 방 이름(input.value)과 콜백 함수(initCall)를 전달합니다.
-  socket.emit("join_room", input.value);
+  // socket을 통해 'join_room' 이벤트를 서버에 전송하며, 방 이름(roomNameInput.value)과 콜백 함수(initCall)를 전달합니다.
+  socket.emit("join_room", roomNameInput.value, nickNameInput.value);
   // 입력된 방 이름을 roomName 변수에 저장합니다.
-  roomName = input.value;
-  // input 필드를 비웁니다.
-  input.value = "";
+  roomName = roomNameInput.value;
+  nickName = nickNameInput.value;
+  
+  // roomNameInput 필드를 비웁니다.
+  roomNameInput.value = "";
+  const h2RoomName = document.querySelector("#h2RoomName");
+  const myNickName = document.querySelector("#myNickName");
+  h2RoomName.innerText = roomName;
+  myNickName.innerText = nickName;
+  document.querySelector("#name input").value = nickName;
 }
 
 // welcomeForm 요소에 'submit' 이벤트 리스너를 추가합니다. 폼이 제출될 때 handleWelcomeSubmit 함수가 호출됩니다.
@@ -264,11 +273,13 @@ socket.on("answer", async (answer) => {
 
 // WebSocket을 통해 'ice' 이벤트를 수신하는 리스너를 설정합니다.
 // 이 이벤트는 ICE 후보자(네트워크 연결 정보)를 포함하고 있습니다.
-socket.on("ice", ice => {
+socket.on("ice", (ice, nickName) => {
   console.log("received ice candidate");
   // 수신된 ICE 후보자를 myPeerConnection 객체에 추가합니다.
   // addIceCandidate 메소드는 원격 피어와의 연결 경로를 설정하는 데 사용되는 ICE 후보자를 처리합니다.
   myPeerConnection.addIceCandidate(ice);
+  const peerNickName = document.querySelector("#peerNickName");
+  peerNickName.innerText = nickName;
 });
 
 //RTC Code
@@ -313,7 +324,7 @@ function handleIce(data) {
   console.log("send candidate");
   // socket.emit을 사용하여 'ice' 이벤트를 서버로 전송합니다. 이때, ICE 후보자(data.candidate)와 방 이름(roomName)을 전송합니다.
   // 이는 다른 피어에게 네트워크 연결 정보를 전달하여 연결 설정을 돕습니다.
-  socket.emit("ice", data.candidate, roomName);
+  socket.emit("ice", data.candidate, roomName, nickName);
 }
 
 // handleAddStream 함수는 원격 피어로부터 받은 미디어 스트림 이벤트를 처리합니다.

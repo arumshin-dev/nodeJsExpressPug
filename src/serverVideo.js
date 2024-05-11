@@ -33,9 +33,11 @@ const wsServer = SocketIO(httpServer);
 // WebSocket 서버의 'connection' 이벤트를 리스닝합니다.
 // 이 이벤트는 새 클라이언트가 서버에 연결될 때 마다 트리거됩니다.
 wsServer.on("connection", (socket) => {
+  socket["nickname"]="Anon";
   // 연결된 클라이언트의 소켓에 대하여 'join_room' 이벤트를 리스닝합니다.
   // 클라이언트가 특정 방에 참여하고자 할 때 이 이벤트가 발생합니다.
-  socket.on("join_room", (roomName) => {
+  socket.on("join_room", (roomName, nickName) => {
+    socket["nickname"]=nickName;
     // 클라이언트 소켓을 roomName 변수로 명시된 방에 추가합니다.
     socket.join(roomName);
     // done 콜백 함수를 호출하여 클라이언트에게 방 참여가 완료되었음을 알립니다.
@@ -58,8 +60,8 @@ wsServer.on("connection", (socket) => {
     // 이는 해당 방의 다른 참가자들이 SDP 답변을 받아 연결 설정을 완료할 수 있도록 합니다.
     socket.to(roomName).emit("answer", answer);
   });
-  socket.on("ice", (ice, roomName) => {
-    socket.to(roomName).emit("ice", ice);
+  socket.on("ice", (ice, roomName, nickName) => {
+    socket.to(roomName).emit("ice", ice, nickName);
   });
 });
 
